@@ -1,0 +1,507 @@
+{
+  "summary": {
+    "initial_capital_sol": 10.0,
+    "final_capital_sol": 12.971111930377777,
+    "net_profit_sol": 2.9711119303777775,
+    "roi_pct": 29.71111930377777,
+    "total_trades": 29,
+    "winning_trades": 17,
+    "losing_trades": 12,
+    "win_rate_pct": 58.620689655172406
+  },
+  "performance": {
+    "total_profit_sol": 5.363622471640354,
+    "total_loss_sol": -2.3925105412625762,
+    "avg_win_sol": 0.31550720421413847,
+    "avg_loss_sol": -0.199375878438548,
+    "profit_factor": 2.241838595540675,
+    "avg_holding_period_days": 4.482758620689655
+  },
+  "best_trade": {
+    "token": "DEGO",
+    "profit_pct": 84.08251205606908,
+    "profit_sol": 0.8803766340500893,
+    "entry_date": "2026-03-07 19:58:50",
+    "exit_date": "2026-03-08 19:58:50"
+  },
+  "worst_trade": {
+    "token": "DEGO",
+    "profit_pct": -52.31317212833611,
+    "profit_sol": -0.5347325125230072,
+    "entry_date": "2026-03-01 19:58:50",
+    "exit_date": "2026-03-02 19:58:50"
+  },
+  "trades": [
+    {
+      "token": "BAN",
+      "entry_date": "2026-02-21 19:59:02",
+      "exit_date": "2026-02-24 19:59:02",
+      "entry_price": 0.0665240963,
+      "exit_price": 0.0508334316,
+      "profit_loss_sol": -0.35379656934926307,
+      "profit_loss_pct": -23.586437956617537,
+      "holding_days": 3,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "EURC",
+      "entry_date": "2026-02-21 19:58:56",
+      "exit_date": "2026-02-28 19:58:56",
+      "entry_price": 1.2030061366,
+      "exit_price": 1.2362405227,
+      "profit_loss_sol": 0.035223296863022786,
+      "profit_loss_pct": 2.762611518668454,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "WMTX",
+      "entry_date": "2026-02-21 19:58:35",
+      "exit_date": "2026-02-28 19:58:35",
+      "entry_price": 0.0875751997,
+      "exit_price": 0.0815302346,
+      "profit_loss_sol": -0.07480691964810893,
+      "profit_loss_pct": -6.902599275488713,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "USDCV",
+      "entry_date": "2026-02-21 19:58:59",
+      "exit_date": "2026-02-28 19:58:59",
+      "entry_price": 1.0675194076,
+      "exit_price": 1.1420170727,
+      "profit_loss_sol": 0.06428578008112482,
+      "profit_loss_pct": 6.978577117158539,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "CBBTC",
+      "entry_date": "2026-02-21 19:58:29",
+      "exit_date": "2026-02-28 19:58:29",
+      "entry_price": 74418.0413652919,
+      "exit_price": 74092.3728610982,
+      "profit_loss_sol": -0.0034266084842810027,
+      "profit_loss_pct": -0.4376203649261547,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-02-28 19:58:50",
+      "exit_date": "2026-03-01 19:58:50",
+      "entry_price": 0.2733122022,
+      "exit_price": 0.4550450168,
+      "profit_loss_sol": 0.8806955998488208,
+      "profit_loss_pct": 66.49275558762446,
+      "holding_days": 1,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-01 19:58:50",
+      "exit_date": "2026-03-02 19:58:50",
+      "entry_price": 0.4550450168,
+      "exit_price": 0.2169965339,
+      "profit_loss_sol": -0.5347325125230072,
+      "profit_loss_pct": -52.31317212833611,
+      "holding_days": 1,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "TRUMP",
+      "entry_date": "2026-02-24 19:58:38",
+      "exit_date": "2026-03-03 19:58:38",
+      "entry_price": 3.4243541868,
+      "exit_price": 3.6799210635,
+      "profit_loss_sol": 0.06250355666666019,
+      "profit_loss_pct": 7.46321387212644,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "ATH",
+      "entry_date": "2026-02-28 19:58:51",
+      "exit_date": "2026-03-03 19:58:51",
+      "entry_price": 0.0036898529,
+      "exit_price": 0.0030365077,
+      "profit_loss_sol": -0.1993444150854876,
+      "profit_loss_pct": -17.706537840573528,
+      "holding_days": 3,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "PIPPIN",
+      "entry_date": "2026-02-28 19:59:00",
+      "exit_date": "2026-03-07 19:59:00",
+      "entry_price": 0.1048141416,
+      "exit_price": 0.1064778897,
+      "profit_loss_sol": 0.015189974234802613,
+      "profit_loss_pct": 1.5873317041027992,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "VIRTUAL",
+      "entry_date": "2026-02-28 19:58:48",
+      "exit_date": "2026-03-07 19:58:48",
+      "entry_price": 0.6714898323,
+      "exit_price": 0.6867795305,
+      "profit_loss_sol": 0.018521141273882248,
+      "profit_loss_pct": 2.2769813427597785,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-07 19:58:50",
+      "exit_date": "2026-03-08 19:58:50",
+      "entry_price": 0.5408441351,
+      "exit_price": 0.9955994702,
+      "profit_loss_sol": 0.8803766340500893,
+      "profit_loss_pct": 84.08251205606908,
+      "holding_days": 1,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "USAD",
+      "entry_date": "2026-03-02 19:58:36",
+      "exit_date": "2026-03-09 19:58:36",
+      "entry_price": 0.9566538304,
+      "exit_price": 0.9269036711,
+      "profit_loss_sol": -0.029293388282704384,
+      "profit_loss_pct": -3.109814475687685,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-08 19:58:50",
+      "exit_date": "2026-03-09 19:58:50",
+      "entry_price": 0.9955994702,
+      "exit_price": 1.7762007971,
+      "profit_loss_sol": 0.8198027220807419,
+      "profit_loss_pct": 78.40515691949793,
+      "holding_days": 1,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "BONK",
+      "entry_date": "2026-03-03 19:58:57",
+      "exit_date": "2026-03-10 19:58:57",
+      "entry_price": 5.8716e-06,
+      "exit_price": 5.8192e-06,
+      "profit_loss_sol": -0.009590438942092296,
+      "profit_loss_pct": -0.8924313645343638,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "EURC",
+      "entry_date": "2026-03-03 19:58:56",
+      "exit_date": "2026-03-10 19:58:56",
+      "entry_price": 1.2749318315,
+      "exit_price": 1.2945995092,
+      "profit_loss_sol": 0.014091223512138094,
+      "profit_loss_pct": 1.5426454351571341,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "BAN",
+      "entry_date": "2026-03-09 19:59:02",
+      "exit_date": "2026-03-13 19:59:02",
+      "entry_price": 0.0543883049,
+      "exit_price": 0.079360404,
+      "profit_loss_sol": 0.5094893278358297,
+      "profit_loss_pct": 45.91446478413781,
+      "holding_days": 4,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "FARTCOIN",
+      "entry_date": "2026-03-07 19:58:53",
+      "exit_date": "2026-03-14 19:58:53",
+      "entry_price": 0.1878723086,
+      "exit_price": 0.2120591412,
+      "profit_loss_sol": 0.11457714111762247,
+      "profit_loss_pct": 12.874080688227613,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-09 19:58:50",
+      "exit_date": "2026-03-14 19:58:50",
+      "entry_price": 1.7762007971,
+      "exit_price": 2.4975075376,
+      "profit_loss_sol": 0.5301448775492471,
+      "profit_loss_pct": 40.60952690020613,
+      "holding_days": 5,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "ATH",
+      "entry_date": "2026-03-10 19:58:51",
+      "exit_date": "2026-03-14 19:58:51",
+      "entry_price": 0.0011403999,
+      "exit_price": 0.00074589,
+      "profit_loss_sol": -0.4296884612286399,
+      "profit_loss_pct": -34.59399636916839,
+      "holding_days": 4,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-14 19:58:50",
+      "exit_date": "2026-03-15 19:58:50",
+      "entry_price": 2.4975075376,
+      "exit_price": 1.3369165094,
+      "profit_loss_sol": -0.7050074453540356,
+      "profit_loss_pct": -46.46997099016884,
+      "holding_days": 1,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "PUMP",
+      "entry_date": "2026-03-10 19:58:47",
+      "exit_date": "2026-03-17 19:58:47",
+      "entry_price": 0.0015825033,
+      "exit_price": 0.0015269504,
+      "profit_loss_sol": -0.03706243869938604,
+      "profit_loss_pct": -3.510444496387467,
+      "holding_days": 7,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-17 19:58:50",
+      "exit_date": "2026-03-18 19:58:50",
+      "entry_price": 2.7242060875,
+      "exit_price": 4.5147255069,
+      "profit_loss_sol": 0.6890090563679091,
+      "profit_loss_pct": 65.72628361766701,
+      "holding_days": 1,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-18 19:58:50",
+      "exit_date": "2026-03-19 19:58:50",
+      "entry_price": 4.5147255069,
+      "exit_price": 6.4427889201,
+      "profit_loss_sol": 0.4918257140839484,
+      "profit_loss_pct": 42.7061049504179,
+      "holding_days": 1,
+      "exit_reason": "Take Profit"
+    },
+    {
+      "token": "WIF",
+      "entry_date": "2026-03-13 19:58:45",
+      "exit_date": "2026-03-19 19:58:45",
+      "entry_price": 0.1613569046,
+      "exit_price": 0.1885003469,
+      "profit_loss_sol": 0.19181787543834913,
+      "profit_loss_pct": 16.821989965219014,
+      "holding_days": 6,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "BAN",
+      "entry_date": "2026-03-14 19:59:02",
+      "exit_date": "2026-03-19 19:59:02",
+      "entry_price": 0.0761559729,
+      "exit_price": 0.0784651476,
+      "profit_loss_sol": 0.03910146666605334,
+      "profit_loss_pct": 3.0321649268825768,
+      "holding_days": 5,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "WMTX",
+      "entry_date": "2026-03-14 19:58:35",
+      "exit_date": "2026-03-19 19:58:35",
+      "entry_price": 0.0911736209,
+      "exit_price": 0.0898626191,
+      "profit_loss_sol": -0.01576134366557076,
+      "profit_loss_pct": -1.4379178835487083,
+      "holding_days": 5,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "TRUMP",
+      "entry_date": "2026-03-15 19:58:38",
+      "exit_date": "2026-03-19 19:58:38",
+      "entry_price": 3.6678823046,
+      "exit_price": 3.6921385114,
+      "profit_loss_sol": 0.0069670839701130045,
+      "profit_loss_pct": 0.661313662370781,
+      "holding_days": 4,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "DEGO",
+      "entry_date": "2026-03-19 19:58:50",
+      "exit_date": "2026-03-19 19:58:50",
+      "entry_price": 6.4427889201,
+      "exit_price": 6.4427889201,
+      "profit_loss_sol": 0.0,
+      "profit_loss_pct": 0.0,
+      "holding_days": 0,
+      "exit_reason": "End of Period"
+    }
+  ],
+  "daily_portfolio": [
+    {
+      "day": 0,
+      "date": "2026-02-18",
+      "value": 10.0
+    },
+    {
+      "day": 1,
+      "date": "2026-02-19",
+      "value": 10.0
+    },
+    {
+      "day": 2,
+      "date": "2026-02-20",
+      "value": 10.0
+    },
+    {
+      "day": 3,
+      "date": "2026-02-21",
+      "value": 10.0
+    },
+    {
+      "day": 4,
+      "date": "2026-02-22",
+      "value": 9.917027880836287
+    },
+    {
+      "day": 5,
+      "date": "2026-02-23",
+      "value": 9.90134576996791
+    },
+    {
+      "day": 6,
+      "date": "2026-02-24",
+      "value": 9.697428371658033
+    },
+    {
+      "day": 7,
+      "date": "2026-02-25",
+      "value": 9.726511085011179
+    },
+    {
+      "day": 8,
+      "date": "2026-02-26",
+      "value": 9.725327255312864
+    },
+    {
+      "day": 9,
+      "date": "2026-02-27",
+      "value": 9.723767572095586
+    },
+    {
+      "day": 10,
+      "date": "2026-02-28",
+      "value": 9.712227368346054
+    },
+    {
+      "day": 11,
+      "date": "2026-03-01",
+      "value": 10.592109076068446
+    },
+    {
+      "day": 12,
+      "date": "2026-03-02",
+      "value": 9.99530001635471
+    },
+    {
+      "day": 13,
+      "date": "2026-03-03",
+      "value": 9.894960227792017
+    },
+    {
+      "day": 14,
+      "date": "2026-03-04",
+      "value": 9.886795617409803
+    },
+    {
+      "day": 15,
+      "date": "2026-03-05",
+      "value": 9.884405540529265
+    },
+    {
+      "day": 16,
+      "date": "2026-03-06",
+      "value": 9.924235253785918
+    },
+    {
+      "day": 17,
+      "date": "2026-03-07",
+      "value": 9.911032832412426
+    },
+    {
+      "day": 18,
+      "date": "2026-03-08",
+      "value": 10.810034561617345
+    },
+    {
+      "day": 19,
+      "date": "2026-03-09",
+      "value": 11.610977614492239
+    },
+    {
+      "day": 20,
+      "date": "2026-03-10",
+      "value": 11.816550328449063
+    },
+    {
+      "day": 21,
+      "date": "2026-03-11",
+      "value": 12.084545724711136
+    },
+    {
+      "day": 22,
+      "date": "2026-03-12",
+      "value": 12.018019491879363
+    },
+    {
+      "day": 23,
+      "date": "2026-03-13",
+      "value": 12.158804815498478
+    },
+    {
+      "day": 24,
+      "date": "2026-03-14",
+      "value": 12.345945072576244
+    },
+    {
+      "day": 25,
+      "date": "2026-03-15",
+      "value": 11.763212941440829
+    },
+    {
+      "day": 26,
+      "date": "2026-03-16",
+      "value": 11.8413926807134
+    },
+    {
+      "day": 27,
+      "date": "2026-03-17",
+      "value": 11.909972230188545
+    },
+    {
+      "day": 28,
+      "date": "2026-03-18",
+      "value": 12.520136105974396
+    },
+    {
+      "day": 29,
+      "date": "2026-03-19",
+      "value": 12.971111930377777
+    }
+  ]
+}
