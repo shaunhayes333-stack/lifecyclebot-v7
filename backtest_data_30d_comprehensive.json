@@ -23,7 +23,8 @@
         "circulating_supply": 184183287831.1904,
         "total_supply": 189650226655.5562,
         "ath": 1.32,
-        "ath_change_percentage": -24.42947
+        "ath_change_percentage": -24.42947,
+        "liquidity_usd": 9456422875.8
       },
       "historical_ohlcv": [
         {
@@ -311,7 +312,8 @@
         "circulating_supply": 79030655561.37347,
         "total_supply": 79031336816.90504,
         "ath": 1.043,
-        "ath_change_percentage": -4.17383
+        "ath_change_percentage": -4.17383,
+        "liquidity_usd": 1273754858.1
       },
       "historical_ohlcv": [
         {
@@ -599,7 +601,8 @@
         "circulating_supply": 571566586.094815,
         "total_supply": 571566592.9739926,
         "ath": 293.31,
-        "ath_change_percentage": -69.69549
+        "ath_change_percentage": -69.69549,
+        "liquidity_usd": 446692337.84999996
       },
       "historical_ohlcv": [
         {
@@ -887,7 +890,8 @@
         "circulating_supply": 4425689588.314132,
         "total_supply": 4425689588.314132,
         "ath": 1.025,
-        "ath_change_percentage": -2.48207
+        "ath_change_percentage": -2.48207,
+        "liquidity_usd": 312230293.05
       },
       "historical_ohlcv": [
         {
@@ -1175,7 +1179,8 @@
         "circulating_supply": 12416491.34753772,
         "total_supply": 12416491.34753772,
         "ath": 290.3,
-        "ath_change_percentage": -69.58585
+        "ath_change_percentage": -69.58585,
+        "liquidity_usd": 101556654.45
       },
       "historical_ohlcv": [
         {
@@ -1463,7 +1468,8 @@
         "circulating_supply": 88632.73614659,
         "total_supply": 88632.73614659,
         "ath": 125954,
-        "ath_change_percentage": -44.61288
+        "ath_change_percentage": -44.61288,
+        "liquidity_usd": 52264150.949999996
       },
       "historical_ohlcv": [
         {
@@ -1751,7 +1757,8 @@
         "circulating_supply": 708099970.4525867,
         "total_supply": 1000000000.0,
         "ath": 52.7,
-        "ath_change_percentage": -82.8657
+        "ath_change_percentage": -82.8657,
+        "liquidity_usd": 50680701.15
       },
       "historical_ohlcv": [
         {
@@ -2039,7 +2046,8 @@
         "circulating_supply": 4063967049.807513,
         "total_supply": 4063967049.807513,
         "ath": 1.021,
-        "ath_change_percentage": -2.0374
+        "ath_change_percentage": -2.0374,
+        "liquidity_usd": 25415414.55
       },
       "historical_ohlcv": [
         {
@@ -2327,7 +2335,8 @@
         "circulating_supply": 119157.65562622,
         "total_supply": 119157.65562622,
         "ath": 125932,
-        "ath_change_percentage": -44.75255
+        "ath_change_percentage": -44.75255,
+        "liquidity_usd": 24040622.849999998
       },
       "historical_ohlcv": [
         {
@@ -2615,7 +2624,8 @@
         "circulating_supply": 850523647.728708,
         "total_supply": 2000000000.0,
         "ath": 0.979732,
-        "ath_change_percentage": -90.83131
+        "ath_change_percentage": -90.83131,
+        "liquidity_usd": 19218622.95
       },
       "historical_ohlcv": [
         {
@@ -2903,7 +2913,8 @@
         "circulating_supply": 0.0,
         "total_supply": 29900000000.0,
         "ath": 1.004,
-        "ath_change_percentage": -0.29393
+        "ath_change_percentage": -0.29393,
+        "liquidity_usd": 18560935.8
       },
       "historical_ohlcv": [
         {
@@ -3191,7 +3202,8 @@
         "circulating_supply": 232498807.465716,
         "total_supply": 1000000000.0,
         "ath": 73.43,
-        "ath_change_percentage": -95.48998
+        "ath_change_percentage": -95.48998,
+        "liquidity_usd": 18514050.45
       },
       "historical_ohlcv": [
         {
@@ -3479,7 +3491,8 @@
         "circulating_supply": 5923976969.764292,
         "total_supply": 5923976969.764292,
         "ath": 1.034,
-        "ath_change_percentage": -3.30959
+        "ath_change_percentage": -3.30959,
+        "liquidity_usd": 18341836.95
       },
       "historical_ohlcv": [
         {
@@ -3767,7 +3780,8 @@
         "circulating_supply": 27661979926.0,
         "total_supply": 100000000000.0,
         "ath": 0.331336,
-        "ath_change_percentage": -72.05373
+        "ath_change_percentage": -72.05373,
+        "liquidity_usd": 15526774.049999999
       },
       "historical_ohlcv": [
         {
@@ -4055,7 +4069,8 @@
         "circulating_supply": 62860396090.0,
         "total_supply": 79759082155.28658,
         "ath": 0.068447,
-        "ath_change_percentage": -89.77261
+        "ath_change_percentage": -89.77261,
+        "liquidity_usd": 13835190.45
       },
       "historical_ohlcv": [
         {
@@ -4343,7 +4358,8 @@
         "circulating_supply": 518743261.0140742,
         "total_supply": 533503434.2940742,
         "ath": 13.53,
-        "ath_change_percentage": -87.59406
+        "ath_change_percentage": -87.59406,
+        "liquidity_usd": 11964993.75
       },
       "historical_ohlcv": [
         {
@@ -4631,7 +4647,8 @@
         "circulating_supply": 998926392.0,
         "total_supply": 998926392.0,
         "ath": 4.83,
-        "ath_change_percentage": -96.34732
+        "ath_change_percentage": -96.34732,
+        "liquidity_usd": 10872285.9
       },
       "historical_ohlcv": [
         {
@@ -4919,7 +4936,8 @@
         "circulating_supply": 590000000000.0,
         "total_supply": 999989182509.4008,
         "ath": 0.00881908,
-        "ath_change_percentage": -78.85789
+        "ath_change_percentage": -78.85789,
+        "liquidity_usd": 10496110.5
       },
       "historical_ohlcv": [
         {
@@ -5207,7 +5225,8 @@
         "circulating_supply": 656301970.3333926,
         "total_supply": 1000000000.0,
         "ath": 5.07,
-        "ath_change_percentage": -86.29252
+        "ath_change_percentage": -86.29252,
+        "liquidity_usd": 10130809.799999999
       },
       "historical_ohlcv": [
         {
@@ -5495,7 +5514,8 @@
         "circulating_supply": 21000000.0,
         "total_supply": 21000000.0,
         "ath": 33.41,
-        "ath_change_percentage": -98.89341
+        "ath_change_percentage": -98.89341,
+        "liquidity_usd": 10012683.9
       },
       "historical_ohlcv": [
         {
@@ -5783,7 +5803,8 @@
         "circulating_supply": 18367688543.0,
         "total_supply": 42000000000.0,
         "ath": 0.118536,
-        "ath_change_percentage": -93.4218
+        "ath_change_percentage": -93.4218,
+        "liquidity_usd": 9468133.95
       },
       "historical_ohlcv": [
         {
@@ -6071,7 +6092,8 @@
         "circulating_supply": 999978899.922108,
         "total_supply": 999978899.922108,
         "ath": 2.48,
-        "ath_change_percentage": -92.29416
+        "ath_change_percentage": -92.29416,
+        "liquidity_usd": 8427516.9
       },
       "historical_ohlcv": [
         {
@@ -6359,7 +6381,8 @@
         "circulating_supply": 216456853.0,
         "total_supply": 216456853.0,
         "ath": 1.022,
-        "ath_change_percentage": -2.14596
+        "ath_change_percentage": -2.14596,
+        "liquidity_usd": 7020862.2
       },
       "historical_ohlcv": [
         {
@@ -6647,7 +6670,8 @@
         "circulating_supply": 369960445.3615411,
         "total_supply": 369960445.3615411,
         "ath": 1.35,
-        "ath_change_percentage": -14.56385
+        "ath_change_percentage": -14.56385,
+        "liquidity_usd": 6369899.399999999
       },
       "historical_ohlcv": [
         {
@@ -6935,7 +6959,8 @@
         "circulating_supply": 87994756232724.47,
         "total_supply": 87994756232724.47,
         "ath": 5.825e-05,
-        "ath_change_percentage": -89.87536
+        "ath_change_percentage": -89.87536,
+        "liquidity_usd": 6226777.95
       },
       "historical_ohlcv": [
         {
@@ -7223,7 +7248,8 @@
         "circulating_supply": 23331450.0,
         "total_supply": 23331450.0,
         "ath": 1.13,
-        "ath_change_percentage": -11.74782
+        "ath_change_percentage": -11.74782,
+        "liquidity_usd": 5701391.25
       },
       "historical_ohlcv": [
         {
@@ -7511,7 +7537,8 @@
         "circulating_supply": 999937213.033886,
         "total_supply": 999937213.033886,
         "ath": 0.897199,
-        "ath_change_percentage": -88.69012
+        "ath_change_percentage": -88.69012,
+        "liquidity_usd": 5552364.899999999
       },
       "historical_ohlcv": [
         {
@@ -7799,7 +7826,8 @@
         "circulating_supply": 999961859.27,
         "total_supply": 999961859.27,
         "ath": 0.37799,
-        "ath_change_percentage": -85.94908
+        "ath_change_percentage": -85.94908,
+        "liquidity_usd": 5068869.0
       },
       "historical_ohlcv": [
         {
@@ -8087,7 +8115,8 @@
         "circulating_supply": 124530311.555578,
         "total_supply": 124530311.555578,
         "ath": 1.058,
-        "ath_change_percentage": -5.43707
+        "ath_change_percentage": -5.43707,
+        "liquidity_usd": 4364936.25
       },
       "historical_ohlcv": [
         {
@@ -8375,7 +8404,8 @@
         "circulating_supply": 1776618666.185051,
         "total_supply": 1776618666.185051,
         "ath": 1.65,
-        "ath_change_percentage": -39.56759
+        "ath_change_percentage": -39.56759,
+        "liquidity_usd": 4356220.649999999
       },
       "historical_ohlcv": [
         {

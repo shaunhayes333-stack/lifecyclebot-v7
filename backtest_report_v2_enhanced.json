@@ -1,0 +1,235 @@
+{
+  "summary": {
+    "initial_capital_sol": 10.0,
+    "final_capital_sol": 12.555259406422648,
+    "net_profit_sol": 1.2672497829704814,
+    "roi_pct": 25.55259406422648,
+    "total_trades": 29,
+    "winning_trades": 15,
+    "losing_trades": 14,
+    "win_rate_pct": 51.724137931034484
+  },
+  "performance": {
+    "total_profit_sol": 2.1366744753060565,
+    "total_loss_sol": -0.869424692335575,
+    "avg_win_sol": 0.14244496502040377,
+    "avg_loss_sol": -0.06210176373825536,
+    "profit_factor": 2.4575727997398036,
+    "avg_holding_period_days": 4.137931034482759
+  },
+  "best_trade": {
+    "token": "DEGO",
+    "profit_pct": 359.97323323963025,
+    "profit_sol": 1.0216377820487268
+  },
+  "worst_trade": {
+    "token": "DEGO",
+    "profit_pct": -37.280118878433385,
+    "profit_sol": -0.2019835166435504
+  },
+  "trades": [
+    {
+      "token": "USDCV",
+      "profit_loss_sol": 0.022972191533697815,
+      "profit_loss_pct": 1.914349294474818,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "AUSD",
+      "profit_loss_sol": -0.028863095033812874,
+      "profit_loss_pct": -2.733247635777734,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "USDE",
+      "profit_loss_sol": -0.010432547420530982,
+      "profit_loss_pct": -1.122648439709343,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "FARTCOIN",
+      "profit_loss_sol": -0.06148204502222834,
+      "profit_loss_pct": -7.518289455549695,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "EURC",
+      "profit_loss_sol": 0.01313957074614536,
+      "profit_loss_pct": 1.8258674351681607,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "profit_loss_sol": -0.12037325978756076,
+      "profit_loss_pct": -20.604886224139467,
+      "holding_days": 2,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "ATH",
+      "profit_loss_sol": -0.16436591893446498,
+      "profit_loss_pct": -17.706537840573528,
+      "holding_days": 3,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "DEGO",
+      "profit_loss_sol": -0.2019835166435504,
+      "profit_loss_pct": -37.280118878433385,
+      "holding_days": 2,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "PIPPIN",
+      "profit_loss_sol": -0.00965501718864996,
+      "profit_loss_pct": -0.9845040795525521,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "TRUMP",
+      "profit_loss_sol": 0.0034645904968640803,
+      "profit_loss_pct": 0.4014520744989417,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "SOL",
+      "profit_loss_sol": -0.018410401046191655,
+      "profit_loss_pct": -2.4241660998086725,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "BONK",
+      "profit_loss_sol": -0.017685925178021866,
+      "profit_loss_pct": -2.208937938551669,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "profit_loss_sol": 1.0216377820487268,
+      "profit_loss_pct": 359.97323323963025,
+      "holding_days": 3,
+      "exit_reason": "Full Take Profit"
+    },
+    {
+      "token": "USDG",
+      "profit_loss_sol": -0.035844270334905726,
+      "profit_loss_pct": -4.80903631710345,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "USDE",
+      "profit_loss_sol": -0.012404609215322148,
+      "profit_loss_pct": -1.4028402148758747,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "EURC",
+      "profit_loss_sol": 0.010009164103448917,
+      "profit_loss_pct": 1.2862940407031815,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "profit_loss_sol": 0.334144543682027,
+      "profit_loss_pct": 109.91176029655547,
+      "holding_days": 3,
+      "exit_reason": "Full Take Profit"
+    },
+    {
+      "token": "BAN",
+      "profit_loss_sol": 0.22546006653044226,
+      "profit_loss_pct": 56.67375478210096,
+      "holding_days": 5,
+      "exit_reason": "Full Take Profit"
+    },
+    {
+      "token": "WMTX",
+      "profit_loss_sol": 0.07327546695334344,
+      "profit_loss_pct": 7.592056630961758,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "USD1",
+      "profit_loss_sol": 0.007137361278250397,
+      "profit_loss_pct": 0.6500715903001327,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "FARTCOIN",
+      "profit_loss_sol": 0.07843579369697064,
+      "profit_loss_pct": 8.118113702421072,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "DEGO",
+      "profit_loss_sol": -0.17096467531750978,
+      "profit_loss_pct": -36.029041354889266,
+      "holding_days": 4,
+      "exit_reason": "Stop Loss"
+    },
+    {
+      "token": "WIF",
+      "profit_loss_sol": 0.10819155405018298,
+      "profit_loss_pct": 10.785377510272342,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "BAN",
+      "profit_loss_sol": 0.0187004686653727,
+      "profit_loss_pct": 3.0321649268825768,
+      "holding_days": 5,
+      "exit_reason": "Max Holding Period"
+    },
+    {
+      "token": "TRUMP",
+      "profit_loss_sol": 0.008102382467642244,
+      "profit_loss_pct": 0.661313662370781,
+      "holding_days": 4,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "LINK",
+      "profit_loss_sol": 0.0017125584540900755,
+      "profit_loss_pct": 0.15883912538033038,
+      "holding_days": 4,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "WMTX",
+      "profit_loss_sol": -0.016959411212825546,
+      "profit_loss_pct": -1.787475844040784,
+      "holding_days": 4,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "DEGO",
+      "profit_loss_sol": 0.21029098059885168,
+      "profit_loss_pct": 42.7061049504179,
+      "holding_days": 1,
+      "exit_reason": "End of Period"
+    },
+    {
+      "token": "WIF",
+      "profit_loss_sol": 0.0,
+      "profit_loss_pct": 0.0,
+      "holding_days": 0,
+      "exit_reason": "End of Period"
+    }
+  ]
+}
