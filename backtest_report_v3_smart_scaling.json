@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "initial_capital_sol": 10.0,
+    "final_capital_sol": 12.669907841248147,
+    "net_profit_sol": 1.3830957066432574,
+    "roi_pct": 26.69907841248147,
+    "total_trades": 28,
+    "winning_trades": 12,
+    "losing_trades": 16,
+    "win_rate_pct": 42.857142857142854,
+    "treasury_compounding": true,
+    "avg_treasury_growth_per_trade_pct": 7.022316775006476
+  },
+  "performance": {
+    "total_profit_sol": 3.095000552315045,
+    "total_loss_sol": -1.7119048456717876,
+    "avg_win_sol": 0.25791671269292044,
+    "avg_loss_sol": -0.10699405285448672,
+    "profit_factor": 1.8079279114958644,
+    "avg_holding_period_days": 4.285714285714286
+  },
+  "best_trade": {
+    "token": "DEGO",
+    "profit_pct": 359.97323323963025,
+    "profit_sol": 0.9693012497170722
+  },
+  "worst_trade": {
+    "token": "DEGO",
+    "profit_pct": -52.31317212833611,
+    "profit_sol": -0.5679799303712667
+  },
+  "scaling_impact": {
+    "enabled": true,
+    "scaling_tiers": {
+      "10.0": 1.0,
+      "15.0": 1.1,
+      "20.0": 1.15,
+      "30.0": 1.2,
+      "50.0": 1.25,
+      "100.0": 1.3
+    },
+    "final_position_size_multiplier": 1.0
+  }
+}
