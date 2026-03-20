@@ -205,8 +205,8 @@ class MainActivity : AppCompatActivity() {
                 heliusApiKey          = etHeliusKey.text.toString().trim(),
                 birdeyeApiKey         = etBirdeyeKey.text.toString().trim(),
                 groqApiKey            = etGroqKey.text.toString().trim(),
-                tgBotToken            = etTgBotToken.text.toString().trim(),
-                tgChatId              = etTgChatId.text.toString().trim(),
+                telegramBotToken      = etTgBotToken.text.toString().trim(),
+                telegramChatId        = etTgChatId.text.toString().trim(),
                 watchlist             = etWatchlist.text.toString()
                                             .split(",")
                                             .map { it.trim() }
@@ -973,7 +973,9 @@ Sizer: $tier ${pct}×wallet  " +
         tvDecisionLog.text = logLines.joinToString("
 ")
         // Auto-scroll to top (newest entry)
-        scrollLog.post { scrollLog.smoothScrollTo(0, 0) }
+        if (::scrollLog.isInitialized) {
+            scrollLog.post { scrollLog.smoothScrollTo(0, 0) }
+        }
     }
 
     private fun buildReasonLine(ts: TokenState, phase: String, signal: String): String {
@@ -1257,9 +1259,8 @@ Sizer: $tier ${pct}×wallet  " +
                 heliusApiKey = "",
                 birdeyeApiKey = "",
                 groqApiKey = "",
-                tgBotToken = "",
-                tgChatId = "",
                 telegramBotToken = "",
+                telegramChatId = "",
             )
             vm.saveConfig(cfg)
 
