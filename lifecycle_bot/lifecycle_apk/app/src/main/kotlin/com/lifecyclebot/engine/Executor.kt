@@ -947,7 +947,6 @@ class Executor(
 
     private fun tokenScale(rawAmount: Long): Double =
         if (rawAmount > 500_000_000L) 1_000_000_000.0 else 1_000_000.0
-}
 
     // ── Treasury withdrawal ───────────────────────────────────────────
 
@@ -1001,4 +1000,5 @@ class Executor(
     }
 
 private fun Double.fmt(d: Int = 6) = "%.${d}f".format(this)
+}
 private fun Double.fmtPct() = "%+.1f%%".format(this)
