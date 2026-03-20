@@ -935,8 +935,7 @@ class MainActivity : AppCompatActivity() {
         tvLogReason.text = buildReasonLine(ts, phase, signal)
         try {
             val insight = com.lifecyclebot.engine.BotService.instance?.botBrain?.lastLlmInsight ?: ""
-            if (insight.isNotBlank()) tvLogReason.text = "${tvLogReason.text}
-💡 $insight"
+            if (insight.isNotBlank()) tvLogReason.text = "${tvLogReason.text}\n💡 $insight"
         } catch (_: Exception) {}
 
         // Show SmartSizer tier + multipliers
