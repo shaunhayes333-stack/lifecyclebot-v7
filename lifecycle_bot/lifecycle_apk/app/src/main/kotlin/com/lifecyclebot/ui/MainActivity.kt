@@ -955,8 +955,7 @@ class MainActivity : AppCompatActivity() {
             walletSol < 50.0 -> "6%"
             else             -> "5%"
         }
-        tvLogReason.text = "${tvLogReason.text}
-Sizer: $tier ${pct}×wallet  " +
+        tvLogReason.text = "${tvLogReason.text}\nSizer: $tier ${pct}×wallet  " +
             "wallet=${walletSol.fmtRef()}◎"
 
         // Append a timestamped line to the scrolling log
@@ -970,8 +969,7 @@ Sizer: $tier ${pct}×wallet  " +
         logLines.addFirst(logLine)
         if (logLines.size > 200) logLines.removeLast()
 
-        tvDecisionLog.text = logLines.joinToString("
-")
+        tvDecisionLog.text = logLines.joinToString("\n")
         // Auto-scroll to top (newest entry)
         if (::scrollLog.isInitialized) {
             scrollLog.post { scrollLog.smoothScrollTo(0, 0) }
