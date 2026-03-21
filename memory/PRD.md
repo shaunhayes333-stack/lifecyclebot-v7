@@ -1,177 +1,124 @@
 # Lifecycle Bot - Product Requirements Document
 
 ## Original Problem Statement
-Build a sophisticated Solana trading bot Android application with:
-1. Clone and fix the GitHub repository `https://github.com/shaunhayes333-stack/lifecycle-bot`
-2. Debug and fix all compilation errors in the Android (Kotlin) application
-3. Ensure GitHub Actions build passes successfully
-4. Implement continuous background operation on phone
-5. Generate test dataset for backtesting
-6. Build web dashboard to visualize bot activity
-7. Integrate Android app with web dashboard
+Build a sophisticated Solana trading bot Android application that autonomously scans, learns, and trades.
 
-## CRITICAL FINDINGS - Why Bot Hasn't Traded
+## Core Functionality - AUTONOMOUS OPERATION
 
-### Root Cause Analysis
-After analyzing the codebase, the primary reasons the bot has not executed a single trade:
+The bot is designed to be fully autonomous:
 
-1. **`autoTrade` defaults to `false`** (BotConfig.kt line 14)
-   - Even when the bot is "running", it won't execute trades unless this is enabled
-   - User MUST enable "Auto Trade" in the app's settings
+### 1. Scanner (SolanaMarketScanner.kt)
+- Scans DexScreener, Raydium, Birdeye, Pump.fun for new tokens
+- Filters by liquidity, age, market cap, volume
+- Auto-adds promising tokens to watchlist
+- Runs every 5 seconds by default
 
-2. **Strategy requires 3+ candles** (LifecycleStrategy.kt line 72-74)
-   - New tokens without historical data return "bootstrap" phase with "WAIT" signal
-   - Need at least 3 data points before any BUY signal can be generated
+### 2. Self-Learning Engine (BotBrain.kt) - 3 Layers
 
-3. **Entry threshold is high** 
-   - Launch snipe mode: 42-65 entry score required depending on phase
-   - Range trade mode: 38-50 entry score required
-   - Many tokens may never reach these thresholds
+**Layer 1 - Statistical Learning (every 20 trades)**
+- Analyzes win rates per signal combination
+- Adjusts entry/exit thresholds automatically
+- Tracks phase performance (pumping, range, cooling, etc.)
+- Records bad patterns to avoid
 
-### Recommendations for User
-1. **Enable Auto Trade** in app settings
-2. **Enable Paper Mode** first to test without real money
-3. **Check Logs** - the in-app error logger shows exactly why trades aren't happening
-4. **Lower thresholds** if needed (exitScoreThreshold, minDiscoveryScore)
+**Layer 2 - LLM Analysis (every 50 trades)**
+- Uses Groq LLM for deep pattern recognition
+- Identifies what's working vs failing
+- Suggests parameter adjustments
+- Requires Groq API key
 
-## Current Architecture
+**Layer 3 - Regime Detection (real-time)**
+- Classifies market: BULL_HOT, BULL, NEUTRAL, BEAR, BEAR_COLD, DANGER
+- Adjusts position sizing based on conditions
+- Reduces size in dangerous markets, increases in hot markets
 
-### Mobile App (Android/Kotlin)
-```
-/lifecycle_bot/lifecycle_apk/
-├── app/src/main/kotlin/com/lifecyclebot/
-│   ├── engine/
-│   │   ├── BotService.kt          # Main service lifecycle
-│   │   ├── SolanaMarketScanner.kt # Token discovery (DexScreener, Raydium, Birdeye)
-│   │   ├── LifecycleStrategy.kt   # Trading strategy (1700+ lines of logic)
-│   │   ├── Executor.kt            # Trade execution (1000+ lines)
-│   │   ├── WalletManager.kt       # Wallet connection (singleton)
-│   │   ├── TreasuryManager.kt     # Profit locking
-│   │   └── ErrorLogger.kt         # SQLite error logging
-│   ├── network/
-│   │   ├── DexscreenerApi.kt      # Market data
-│   │   └── BirdeyeApi.kt          # Token data
-│   └── ui/
-│       ├── MainActivity.kt        # Main screen
-│       └── ErrorLogActivity.kt    # Error log viewer
-```
+### 3. Shadow Learning Engine (ShadowLearningEngine.kt)
+- Runs parallel simulated trades with different parameters
+- Tests aggressive vs conservative strategies simultaneously
+- Compares variants to live trading
+- Auto-generates insights: "Variant A would have made +15% more"
 
-### Web Dashboard (React + FastAPI)
-```
-/backend/server.py       # FastAPI with JWT auth, MongoDB
-/frontend/src/
-├── App.js               # AuthProvider context, routing
-├── pages/
-│   ├── LoginPage.jsx    # Authentication (login/register)
-│   └── DashboardPage.jsx # Main dashboard
-└── components/dashboard/ # Dashboard components
-```
+### 4. Strategy (LifecycleStrategy.kt)
+- Token lifecycle-based trading (launch snipe vs range trade)
+- EMA fan detection for trend following
+- Volume, pressure, momentum scoring
+- Multi-timeframe analysis (1m, 5m, 15m)
+- Bonding curve tracking for pump.fun tokens
+- Whale detection and smart money tracking
 
-## What's Been Implemented
-
-### Completed (March 21, 2025)
-- [x] **BUILD FIXED** - GitHub Actions Build #53 passing
-  - Removed buggy trade simulation feature
-  - Fixed syntax error in SolanaMarketScanner.kt
-- [x] **Web dashboard fully functional**
-  - Auth system with JWT tokens  
-  - Stats cards (Treasury, P&L, Win Rate, Total Trades, Avg Win/Loss)
-  - Treasury Performance chart (30-day visualization)
-  - Open Positions table with real-time P&L
-  - Watchlist with 5 tokens
-  - Activity feed with bot events
-  - Trade history
-- [x] **Fixed auth context** - AuthProvider properly wraps app
-- [x] **Login/register flow working**
-- [x] **API Sync working** - `/api/sync/bulk` endpoint tested and functional
-- [x] **30-day backtest dataset generated** - `/app/backtest_dataset_30d.json`
-- [x] **Dashboard seeded with real trading data**
-  - 9 total trades (6 wins, 3 losses = 66.7% win rate)
-  - 2 open positions (BONK, WIF)
-  - 5 watchlist tokens (JUP, USDC, RAY, BONK, WIF)
-  - Treasury performance chart
-- [x] In-app error logger (SQLite with UI)
-- [x] Comprehensive diagnostic logging in scanner and strategy
-
-### Scripts Created
-- `/app/generate_backtest_data.py` - Generates 30-day backtest dataset from CoinGecko API
-- `/app/seed_dashboard.py` - Seeds dashboard with trading data via API
-
-### Critical Issues (P0) - FOR USER TO TEST
-- [ ] **Enable Auto Trade** and verify trading signals
-- [ ] Check why scanner may not be finding tokens (filters may be too strict)
-- [ ] Wallet persistence - verify wallet stays connected between screens
-
-### Future Tasks (P2)
-- [ ] Backtesting UI in dashboard (visualize historical trades)
-- [ ] Mobile-responsive dashboard
-- [ ] Strategy parameter tuning UI
-- [ ] Real-time WebSocket sync between Android and Dashboard
-
-## Key Configuration Values (BotConfig.kt)
+## Current Configuration (BotConfig.kt)
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `autoTrade` | **false** | Must enable to execute trades |
-| `paperMode` | true | Simulate trades without real money |
-| `minLiquidityUsd` | 3000 | Min liquidity for scanner |
-| `minDiscoveryScore` | 25 | Min score to add token to watchlist |
-| `exitScoreThreshold` | 58 | Score to trigger exit |
-| `fullMarketScanEnabled` | true | Enable scanner |
-| `scanIntervalSecs` | 5 | Scanner poll interval |
+| **`autoTrade`** | **true** | Bot trades automatically |
+| **`autoAddNewTokens`** | **true** | Auto-scan new launches |
+| `paperMode` | true | Simulate without real money |
+| `fullMarketScanEnabled` | true | Scanner active |
+| `scanIntervalSecs` | 5 | Scan frequency |
+| `minLiquidityUsd` | 3000 | Min liquidity filter |
+| `minDiscoveryScore` | 25 | Min score to watchlist |
 
-## API Endpoints
+## Build Status
+- **Build #53**: SUCCESS - Fixed compilation errors
+- **Build #54**: SUCCESS - Enabled autonomous mode
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - JWT authentication
-- `GET /api/auth/me` - Current user
+## Architecture
 
-### Dashboard Data
-- `GET /api/dashboard` - Dashboard stats (summary)
-- `GET /api/bot/status` - Bot status
-- `POST /api/bot/status` - Update bot status
+### Mobile App (Android/Kotlin)
+```
+/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/
+├── engine/
+│   ├── BotService.kt          # Main loop
+│   ├── SolanaMarketScanner.kt # Token discovery
+│   ├── LifecycleStrategy.kt   # Trading signals
+│   ├── Executor.kt            # Trade execution
+│   ├── BotBrain.kt            # Self-learning
+│   ├── ShadowLearningEngine.kt # Parallel simulations
+│   ├── WalletManager.kt       # Wallet (singleton)
+│   └── TreasuryManager.kt     # Profit management
+├── network/
+│   ├── DexscreenerApi.kt
+│   ├── BirdeyeApi.kt
+│   └── JupiterApi.kt
+└── ui/
+    ├── MainActivity.kt
+    └── ErrorLogActivity.kt
+```
 
-### Trading Data
-- `GET /api/positions` - Open positions
-- `POST /api/positions/sync` - Sync positions from Android
-- `GET /api/trades` - Trade history
-- `POST /api/trades` - Record new trade
-- `GET /api/trades/stats` - Trade statistics
-
-### Treasury
-- `GET /api/treasury/history` - Treasury history
-- `POST /api/treasury/snapshot` - Add treasury snapshot
-
-### Sync
-- `POST /api/sync/bulk` - Bulk data push from Android app (positions, trades, watchlist, activity)
-
-### Watchlist & Activity
-- `GET /api/watchlist` - Watchlist tokens
-- `POST /api/watchlist/sync` - Sync watchlist
-- `GET /api/activity` - Activity log
-- `POST /api/activity` - Log activity
+### Web Dashboard (React + FastAPI)
+- URL: https://dex-strategy-v7.preview.emergentagent.com
+- Features: Treasury chart, positions, watchlist, activity, trade history
+- API: `/api/sync/bulk` for Android sync
 
 ## 3rd Party Integrations
-- Helius (RPC) - User API key required
-- Birdeye (Token data) - User API key required
-- Groq (LLM sentiment) - Optional
-- DexScreener, Raydium, Pump.fun - Free APIs for token scanning
-- CoinGecko - Free API for historical price data (used in backtest generation)
+- **Helius** - RPC (user key required)
+- **Birdeye** - Token data (user key required)
+- **Groq** - LLM learning (optional, for Layer 2)
+- **Jupiter** - DEX aggregator for swaps
+- **DexScreener, Raydium, Pump.fun** - Free APIs
 
-## Build History
-- Build #51-52: Failed - Trade simulation bugs
-- **Build #53: SUCCESS** - Fixed build (current)
+## How the Bot Learns
 
-## Next Steps for User
-1. Download APK from GitHub Actions artifacts (Build #53)
-2. Install on Android device
-3. Go to Settings → Enable "Auto Trade" and "Paper Mode"
-4. Connect wallet
-5. Start bot
-6. Check Logs to see scanner activity and why signals may be blocked
-7. View web dashboard at https://dex-strategy-v7.preview.emergentagent.com
+1. **On every trade**: Records entry phase, EMA fan, MTF trend, source, score, hold time, P&L
+2. **Every 20 trades**: Statistical analysis identifies winning/losing patterns
+3. **Every 50 trades**: LLM deep analysis (if Groq key provided)
+4. **Continuously**: Shadow engine tests parameter variants
+5. **Real-time**: Regime detection adjusts to market conditions
 
-## Dashboard Access
-- **URL**: https://dex-strategy-v7.preview.emergentagent.com
-- **Test User**: testuser / test123
+### Bad Behaviour Registry
+- Patterns with <40% win rate get flagged
+- Confirmed bad patterns get suppressed (-45 pts from entry score)
+- Severe patterns get near-blocked (-80 pts)
+- LLM cannot override hard-learned bad patterns
+
+## User Setup
+1. Download APK from GitHub Actions (Build #54+)
+2. Install on Android
+3. Connect Solana wallet
+4. (Optional) Add API keys: Helius, Birdeye, Groq
+5. Start bot - it will scan, learn, and trade automatically
+
+## Next Steps
+- [ ] Add backtesting UI to dashboard
+- [ ] Implement WebSocket real-time sync
+- [ ] Mobile-responsive dashboard
