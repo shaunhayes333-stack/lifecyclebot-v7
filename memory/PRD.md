@@ -17,15 +17,16 @@ Build a sophisticated Solana trading bot Android application with:
 /lifecycle_bot/lifecycle_apk/
 ├── app/src/main/kotlin/com/lifecyclebot/
 │   ├── engine/
-│   │   ├── BotService.kt          # Main service lifecycle
+│   │   ├── BotService.kt          # Main service lifecycle (ENHANCED LOGGING)
 │   │   ├── Executor.kt            # Trade execution
-│   │   ├── SecurityGuard.kt       # Safety checks (UPDATED)
-│   │   ├── TreasuryManager.kt     # Profit locking (FIXED)
-│   │   ├── WalletManager.kt       # Wallet connection (LOGGING)
-│   │   ├── ErrorLogger.kt         # NEW: SQLite error logging
-│   │   ├── TokenSafetyChecker.kt  # Token validation (UPDATED)
+│   │   ├── SecurityGuard.kt       # Safety checks
+│   │   ├── TreasuryManager.kt     # Profit locking
+│   │   ├── WalletManager.kt       # Wallet connection
+│   │   ├── ErrorLogger.kt         # SQLite error logging
+│   │   ├── TokenSafetyChecker.kt  # Token validation
 │   │   ├── AutoModeEngine.kt      # Trading mode switching
-│   │   ├── SolanaMarketScanner.kt # Token discovery
+│   │   ├── SolanaMarketScanner.kt # Token discovery (ENHANCED LOGGING)
+│   │   ├── LifecycleStrategy.kt   # Trading strategy
 │   │   └── BotBrain.kt            # Self-learning engine
 │   ├── network/
 │   │   ├── SolanaWallet.kt        # Solana RPC
@@ -33,7 +34,7 @@ Build a sophisticated Solana trading bot Android application with:
 │   │   └── DexscreenerApi.kt      # Market data
 │   ├── ui/
 │   │   ├── MainActivity.kt        # Main screen
-│   │   ├── ErrorLogActivity.kt    # NEW: Error log viewer
+│   │   ├── ErrorLogActivity.kt    # Error log viewer
 │   │   └── ...
 │   └── data/
 ```
@@ -54,19 +55,23 @@ Build a sophisticated Solana trading bot Android application with:
 - [x] Fixed 80+ Kotlin compilation errors
 - [x] GitHub Actions CI/CD pipeline working
 - [x] Web dashboard with auth, charts, tables
-- [x] Treasury lock blocking fix (Build #15-16)
+- [x] Treasury lock blocking fix
 - [x] UTC pause logic improvement
 - [x] Watchlist token refresh optimization
-- [x] **Major token whitelist** (Build #17) - SOL, USDC, BONK, JUP, etc.
-- [x] **In-app error logger** (Build #18) - SQLite database with UI
+- [x] Major token whitelist (SOL, USDC, BONK, JUP, etc.)
+- [x] In-app error logger (SQLite database with UI)
+- [x] Wallet balance display fix (labels corrected)
+- [x] RPC URL input field added to wallet screen
+- [x] RPC fallback endpoints for connection stability
+- [x] **Build #33: Comprehensive diagnostic logging** for scanner and trading loop
 
-### 🔴 Critical Issues (P0)
-- [ ] App runtime crash - use new Error Logger to debug
-- [ ] Wallet connection - needs testing with logging
+### 🔴 Critical Issues Being Investigated (P0)
+- [ ] Core AI trading logic appears "stuck" - needs user verification with new logging
+- [ ] Market scanner may be filtering out tokens too aggressively
 
 ### 🟡 Medium Priority (P1)
-- [ ] Watchlist generating same tokens - verify after crash fix
 - [ ] Android-Dashboard sync integration
+- [ ] Watchlist token variety - verify scanner sources working
 
 ### 🔵 Future Tasks (P2)
 - [ ] Backtesting UI in dashboard
@@ -74,6 +79,15 @@ Build a sophisticated Solana trading bot Android application with:
 - [ ] Strategy parameter tuning
 
 ## Key Technical Decisions
+
+### Build #33: Diagnostic Logging Enhancement
+Added comprehensive logging to diagnose why trading logic appears inactive:
+- **SolanaMarketScanner.passesFilter()**: Logs WHY tokens are rejected (liquidity, score, etc.)
+- **Bot loop**: Logs every 5 loops with watchlist size and scanner status
+- **onTokenFound callback**: Logs each token discovery and addition attempt
+- **Strategy evaluation**: Logs BUY signals and high entry scores
+
+All logs visible in the in-app "Logs" screen for user debugging.
 
 ### Error Logger (Build #18)
 - SQLite database stores logs persistently
@@ -86,16 +100,9 @@ Build a sophisticated Solana trading bot Android application with:
 Verified mints that bypass ALL safety checks:
 - So11111111111111111111111111111111111111112 (SOL wrapped)
 - EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v (USDC)
-- Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB (USDT)
 - DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 (BONK)
-- EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm (WIF)
 - JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN (JUP)
-- Plus: RAY, ORCA, mSOL, PYTH, JITO, RENDER
-
-### Treasury Lock Fix (Build #15-16)
-- Only apply lock if milestones ($500+) actually hit
-- Auto-reset corrupted state on restore
-- Emergency unlock if wallet low but treasury claims funds
+- Plus: RAY, ORCA, mSOL, PYTH, JITO, RENDER, USDT, WIF
 
 ## Database Schema (MongoDB)
 - `users`: Authentication
@@ -117,13 +124,14 @@ Verified mints that bypass ALL safety checks:
 - Groq (LLM sentiment) - User API key required
 - CoinGecko (Market data) - Free tier
 - Telegram (Notifications) - User token required
-
-## Testing Status
-- Web dashboard: All 30 tests passed
-- Android app: Requires device testing with new Error Logger
+- DexScreener, Raydium, Pump.fun - Token scanning
 
 ## Build History
 - Build #15: Treasury lock fix
 - Build #16: Indentation fix
 - Build #17: Major token whitelist + crash logging
 - Build #18: In-app Error Logger with SQLite
+- Build #30: Restore scanner functionality
+- Build #31: RPC error logging + new endpoints
+- Build #32: Wallet balance display fix
+- **Build #33: Comprehensive diagnostic logging for scanner + trading loop**
