@@ -1,9 +1,11 @@
 <analysis>**original_problem_statement:**
-The user wants to upload a project from a GitHub repository to continue working on it. The primary goal evolved into fixing persistent and recurring build failures for a Kotlin-based Android application, which is a sophisticated Solana trading bot. After fixing the build, the user wants to generate a test dataset for the bot, run backtests to evaluate its performance, and make improvements based on the results. The final objective is to have a working, compilable application in the GitHub repository.
+The user wants to upload a project from a GitHub repository to continue working on it. The primary goal evolved into fixing persistent and recurring build failures for a Kotlin-based Android application, which is a sophisticated Solana trading bot. After fixing the build, the user wants to generate a test dataset for the bot, run backtests to evaluate its performance, and make improvements based on the results. The final objective is to have a working, compilable, and stable application in the GitHub repository.
+
+The user has also provided a detailed architectural document for their v7 trading logic, which is based on a token's lifecycle, structure, and behavior, rather than just price. The bot should find and trade new  launches and recent Raydium migrations.
 
 **PRODUCT REQUIREMENTS:**
 1.  Clone the GitHub repository .
-2.  Debug and fix all compilation errors in the Android (Kotlin) application.
+2.  Debug and fix all compilation and runtime errors in the Android (Kotlin) application.
 3.  Ensure the GitHub Actions build passes successfully.
 4.  Implement a mechanism for the app to run continuously in the background on a phone.
 5.  Generate a 30-day test dataset of the top 30 performing Solana tokens using a free API.
@@ -16,163 +18,164 @@ The user wants to upload a project from a GitHub repository to continue working 
 **User's preferred language**: English
 
 **what currently exists?**
-The initial goal of fixing the Android application's build has been successfully completed. The GitHub Actions workflow now consistently builds a valid APK.
+The project is a Kotlin-based Android application for a sophisticated Solana trading bot designed to trade based on a token's lifecycle. It includes a React/FastAPI web dashboard that currently uses mocked data.
 
-Following this, a full-stack web dashboard has been implemented using React for the frontend and FastAPI for the backend. The dashboard features user authentication (login/register), real-time charts for P&L, statistics cards, and tables for trade history and open positions. The dashboard has been tested and is functional.
-
-However, the focus has shifted back to the Android app, which is now suffering from critical runtime issues. The user reports that the app crashes upon starting the bot, the wallet connection feature is not working, and the token watchlist generates repetitive results.
+While the project structure is complex and contains advanced logic for trading, scanning, and treasury management, it is functionally broken. The Android app's build is currently failing due to compilation errors. Key functionalities like the market scanner, core trading logic, and wallet connection persistence are not working correctly, leading to user frustration over more than 50 attempted builds. A robust in-app SQLite logging system is the primary tool for on-device debugging.
 
 **Last working item**:
--   **Last item agent was working:** Attempting to fix the wallet connection and app crash issues simultaneously. The last set of changes involved adding extensive, granular logging throughout the   function to pinpoint the exact line of code causing the crash. The wallet connection logic in  and  was also updated with more detailed error logging.
+-   **Last item agent was working:** Fixing a critical build failure. The user provided logs showing compilation errors in  and . The agent had introduced a buggy Full Trade Simulation feature which caused data structure mismatches, and there was also a syntax error in the scanner file.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** Manual testing by the user is required. The next agent MUST guide the user on how to retrieve on-device logs (e.g., using an app or ) to analyze the crash, as previous attempts to fix it without logs have failed.
--   **User Testing Done:** Y (User confirmed the app still crashes and wallet doesn't connect after the last successful build).
+-   **Which testing method agent to use?** Manual check of GitHub Actions. The next agent must first push the identified fixes and then check the GitHub Actions tab in the repository to see if the build passes. Functional testing is not possible until the app compiles successfully.
+-   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1 (P0): App crashes when the bot is started.**
--   **Issue 2 (P0): Wallet connection is not working.**
--   **Issue 3 (P1): Watchlist generates the same tokens repeatedly.**
+-   **Issue 1 (P0): Build is broken.** The app fails to compile, making it impossible to install or test. This is a complete blocker.
+-   **Issue 2 (P0): Core AI trading logic is non-functional.** The user has reported that the bot has not attempted a single trade in over 50 versions. This is the primary goal of the app.
+-   **Issue 3 (P0): Market scanner is ineffective.** The scanner fails to populate the watchlist. It has been plagued by issues including overly strict filters, finding the wrong type of tokens (e.g., established coins instead of new launches), and causing  crashes.
+-   **Issue 4 (P1): Wallet connection is not persistent and balance display is broken.** The user repeatedly reports that the wallet disconnects between screens or when the bot is started/stopped. The main screen also incorrectly displays a /bin/bash.00 balance despite the wallet being connected, indicating a data fetching or UI update issue.
+-   **Issue 5 (P1): App is prone to  crashes.** This is a recurring issue, primarily caused by the . Despite multiple aggressive optimization attempts, the error has reappeared, leading to app instability.
 
 **Issues Detail:**
--   **Issue 1: App crashes when the bot is started.**
-    -   **Attempted fixes:** Multiple layers of  blocks have been added around major components (, , component initializations) in . Null-safe operators () were used to replace force-unwrapping (). The last build (, commit ) added extensive logging to trace the execution flow. Despite these efforts, the user reports the crash persists.
+-   **Issue 1: Build is broken.**
+    -   **Attempted fixes:** The agent identified compilation errors related to a new, buggy simulation function in  and syntax errors (, duplicate brace) in . The agent implemented fixes by removing the entire simulation feature and correcting the syntax error.
     -   **Next debug checklist:**
-        1.  Guide the user to capture device logs (logcat) at the moment of the crash. The extensive logging added in the last build should pinpoint the exact component and line number causing the failure.
-        2.  Analyze the logcat output to identify the root .
-        3.  Implement a targeted fix based on the specific error found in the logs.
-    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. The app is unusable until the crash is resolved.
+        1.  The changes to fix the build (from messages 503-512) have been made locally but **not pushed**. The next agent's first action MUST be to  these changes.
+        2.  Verify the GitHub Actions build completes successfully after the push.
+    -   **Why fix this issue and what will be achieved with the fix?** The application cannot be deployed or tested until it compiles. This is the highest priority blocker.
     -   **Status:** IN PROGRESS
     -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** Android App only.
+    -   **Should Test frontend/backend/both after fix?** N/A (Build verification only)
+    -   **Blocked on other issue:** None. This is the primary blocker.
 
--   **Issue 2: Wallet connection is not working.**
-    -   **Attempted fixes:** Added detailed error logging to . Modified  and  to dynamically construct the Helius RPC URL if a Helius API key is present, avoiding the rate-limited public RPC. Corrected logic in  to ensure the latest config is reloaded after saving. The issue remains.
+-   **Issue 2: Core AI trading logic is non-functional.**
+    -   **Attempted fixes:** Added extensive logging. Discovered that  defaults to  and the strategy requires at least 3 data candles to generate a  signal, which new tokens lack.
     -   **Next debug checklist:**
-        1.  Review the logcat from the crash, as the wallet connection failure might be the cause of the crash itself.
-        2.  Verify in  and  that the private key and RPC URL from the input fields are correctly saved to  and then immediately reloaded and used for the connection attempt.
-        3.  Add toast messages to the UI to display the specific error message from the   block.
-    -   **Why fix this issue and what will be achieved with the fix?** The bot cannot perform live trades without a wallet connection.
-    -   **Status:** IN PROGRESS
+        1.  After the build is fixed, instruct the user to enable Auto Trade in the app's settings.
+        2.  Analyze the in-app logs for new detailed messages to see why a  signal is not being generated (e.g., , , ).
+    -   **Why fix this issue and what will be achieved with the fix?** Restores the application's entire purpose.
+    -   **Status:** BLOCKED
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** Android App only.
+    -   **Blocked on other issue:** Issue 1: Build is broken.
 
--   **Issue 3: Watchlist generates the same tokens repeatedly.**
-    -   **Attempted fixes:** The  in  was reduced from 30 minutes to 5-10 seconds to allow tokens to be re-evaluated more frequently. Logic was added to gracefully handle cases where API keys (like Birdeye) are missing, preventing the scanner from relying on a single, limited data source.
-    -   **Next debug checklist:** Once the crash is resolved, have the user confirm if the watchlist is more dynamic. If not, log which data sources (, , etc.) are being successfully queried in .
-    -   **Why fix this issue and what will be achieved with the fix?** A dynamic watchlist is essential for discovering new trading opportunities.
-    -   **Status:** IN PROGRESS
+-   **Issue 3: Market scanner is ineffective.**
+    -   **Attempted fixes:** Multiple refactors to tune filters (keywords, lifecycle stages, liquidity, age), which were either too strict or targeted the wrong tokens. Added an Immediate Test Scan to bypass filters for debugging. Added extensive logging.
+    -   **Next debug checklist:**
+        1.  Once the build is fixed, run the app and analyze the detailed scanner logs.
+        2.  Check the output of the Immediate Test Scan to confirm the API connection and basic processing works.
+        3.  Examine  logs to understand why tokens are being discarded. The filters likely need to be re-calibrated based on the user's v7 logic document.
+    -   **Why fix this issue and what will be achieved with the fix?** The trading logic cannot function without a working scanner to supply it with qualified tokens.
+    -   **Status:** BLOCKED
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** Android App only.
+    -   **Blocked on other issue:** Issue 1: Build is broken.
 
 **In progress Task List**:
--   None. Current work is focused on fixing the critical P0 bugs.
+-   None. All work is focused on critical bug fixes.
 
 **Upcoming and Future Tasks**
 *   **Upcoming Tasks:**
-    *   (P0) Integrate the Android app with the web dashboard for real-time data sync. This is blocked by the app crash.
+    *   (P0) Integrate the Android app with the web dashboard for real-time data sync. *(Blocked by app instability and non-functional trading logic)*.
 *   **Future Tasks:**
-    *   (P1) Develop the React/FastAPI web dashboard to visualize the bot's trading activity, P&L, and status (This was a future task, now moved to completed).
-    *   (P2) Further refine the bot's trading strategy and parameters based on live performance data.
-    *   (P2) Add a backtesting UI to the web dashboard.
-    *   (P3) Implement mobile-responsive optimizations for the web dashboard.
+    *   Add a backtesting UI to the web dashboard.
+    *   Implement mobile-responsive optimizations for the web dashboard.
+    *   Generate a test dataset for backtesting.
+    -   Further refine the bot's trading strategy based on live performance data.
 
 **Completed work in this session**
--   **Android Build Success:** Fixed over 80 distinct Kotlin compilation errors, leading to a stable and successful GitHub Actions build process. The APK is now being generated correctly.
--   **Web Dashboard Implementation:**
-    -   **Backend (FastAPI):** Created  with JWT authentication and API endpoints for , , , , , and .
-    -   **Frontend (React):**
-        -   Structured the app with  and .
-        -   Created multiple reusable dashboard components: , , , , , , .
-        -   Implemented a complete, functional UI for visualizing bot data.
-    -   **Database (MongoDB):** Set up and used collections for , , , , and .
--   **Testing:** Successfully used the  to perform a comprehensive test of the web dashboard, with all 30 backend API tests and all frontend UI tests passing.
--   **Android Runtime Bug Fixes:**
-    -   Fixed a UI bug where the Advanced settings section was not expanding.
-    -   Improved the UTC dead zone logic to be less aggressive and allow trading on strong signals.
-    -   Fixed an APK installation failure by removing the .
+-   **Diagnostics:** Added extensive logging to the scanner, strategy, and execution pipeline to trace the entire trading flow.
+-   **Scanner Logic Refinement:**
+    -   Restored the  scanner and attempted several memory optimizations.
+    -   Refactored the scanner to focus on **token lifecycle stages** (age, liquidity) based on the user's detailed specifications, moving away from simple keyword searches.
+    -   Added an Immediate Test Scan feature to bypass filters and force-populate the watchlist for debugging.
+    -   Lowered default filter values (, ) and increased API rate limits.
+-   **Wallet Persistence Logic:**
+    -   Refactored  into a singleton to maintain connection state across screens.
+    -   Added logic to  to auto-reconnect the wallet on app start using saved credentials.
+    -   Removed code from  that was incorrectly disconnecting the wallet when the bot was stopped.
+-   **UI/UX and Build Fixes:**
+    -   Fixed a navigation issue preventing users from returning from the wallet screen.
+    -   Added fallbacks and more frequent refresh calls to fix the /bin/bash.00 balance display.
+    -   Identified and implemented (but did not push) fixes for the latest build-breaking compilation errors.
+
+**Earlier issues found/mentioned but not fixed**
+-   All major known issues are captured in the Pending/In progress Issue list. The agent has not missed any major reported problems, but has failed to deliver a working solution for them.
+
+**Known issue recurrence from previous fork**
+-   **Issue recurrence in previous fork:** Core trading logic and market scanner are non-functional and unstable.
+-   **Recurrence count:** High (This has been the central problem for the entire job).
+-   **Status:** IN PROGRESS
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-*   **Mobile App:** Android (Kotlin), Gradle, GitHub Actions CI/CD
-*   **Backend:** FastAPI, Python
-*   **Frontend:** React, JavaScript, , 
-*   **Authentication:** JSON Web Tokens (JWT)
-*   **Database:** MongoDB
-*   **Core Logic:** Solana Trading Bot, Asynchronous programming (Kotlin Coroutines)
+*   **Mobile App:** Android (Kotlin), Gradle, GitHub Actions CI/CD, Coroutines
+*   **Trading Logic:** Lifecycle-based trading system targeting  tokens, using signal engines (Safety, Whale, Momentum, etc.), a weighted decision model, and dynamic position sizing.
+*   **Data Sources:** DexScreener, Birdeye, CoinGecko, .
+*   **Wallet Management:** Singleton pattern for state persistence, encrypted SharedPreferences for credentials.
+*   **Backend/Frontend:** FastAPI/React (currently out of scope).
 
 **key DB schema**
--   : 
--   : 
--   : 
--   : 
--   : 
+-   **Android/SQLite:** :  (heavily used for debugging).
 
 **changes in tech stack**
--   None.
+-   No changes in this session.
 
 **All files of reference**
--   : Newly created backend server.
--   : Main router for the frontend application.
--   : Core UI for the dashboard.
--   : User authentication page.
--   : Critical file for bot lifecycle, repeatedly modified to fix crashes.
--   : Manages wallet state and connection.
--   : Handles low-level wallet operations.
--   : Modified to improve token refresh rate.
--   : Data model for all settings, modified to change refresh interval.
+-   : Contains the core bot loop. **The build is currently broken due to errors in this file.**
+-   : The market scanner implementation. It is the primary source of instability and functional failures. **The build is currently broken due to errors in this file.**
+-   : Manages wallet state. Was refactored to a singleton to address persistence issues.
+-   : The link between the UI and the backend services. Contains wallet auto-reconnect logic.
+-   : The main UI of the app.
+-   : Contains the complex logic for generating BUY/SELL signals.
+-   : Contains default configuration values, which were modified to be less restrictive.
 
-**key api endpoints**
--   **POST** 
--   **POST** 
--   **GET** 
--   **GET** 
--   **GET** 
--   **GET** 
--   **POST**  (For Android app to push data)
+**Areas that need refactoring**:
+-   ****: This component is fundamentally flawed and has been patched reactively. It needs a complete rewrite guided by the user's v7 trading logic document to ensure it is stable, memory-efficient, and effective at identifying tokens in the correct lifecycle stage.
 
 **Critical Info for New Agent**
-*   **The Android build is STABLE.** Do not attempt to fix build issues. The problem is now at **RUNTIME**.
-*   The highest priority is to **diagnose the app crash**. The last build (, commit ) was filled with extensive logging in . You MUST guide the user on how to get device logs () to see these log messages and find the exact . Stop guessing the cause and get the data.
-*   The wallet connection failure is likely linked to the crash. It could be failing silently and causing a downstream component to crash. The logs should reveal this.
-*   The user's configuration might be the problem. After fixing the crash, verify that the Private Key (Base58) and RPC URL are being saved from the UI, loaded by , and used correctly by .
+*   **THE BUILD IS BROKEN.** Your absolute first priority is to fix the compilation errors. The previous agent identified the fixes (removing a buggy trade simulation and fixing syntax errors) but did not push them. You must  these changes and verify the build passes in GitHub Actions before doing anything else.
+*   **The user is extremely frustrated after 50+ failed builds.** The core problems (no trading, broken scanner, wallet issues) persist. You must focus on delivering a functional build that addresses these core issues. Avoid adding new features until the existing ones are stable.
+*   **The user's v7 trading logic document is your blueprint.** The user provided a detailed breakdown of how the bot should work. The scanner and strategy should be aligned with this lifecycle-based approach. The current implementation is a broken version of this vision.
+*   **The problems are all connected:** The scanner's failure to find tokens starves the trading logic. Wallet persistence issues and incorrect balance displays destroy user confidence and make the app feel completely broken. A holistic fix is needed.
 
 **documents and test reports created in this job**
--   : Test report for the web dashboard.
--   : Updated with the web dashboard requirements and completion status.
+-    (updated with logging notes)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **app is still crashing and watchlist generates the same tokens everytime:** User reports the crash from build #10 persists, and the watchlist is stale.
-2.  **continue:** User asks the agent to proceed with debugging.
-3.  **still doesn't connect the wallet and it crashes:** User reports build #13 still has the crash and wallet connection issues.
-4.  **wallet is still not connecting please fix. it worked before. its also blocking buying solana at all:** User re-iterates the P0 wallet issue and a new symptom (trading is blocked).
-5.  **Recharged:** User notification.
-6.  **I see two issues...** (User screenshot): User provides screenshots showing the crash and UTC dead zone message.
-7.  **issues** (User screenshot): User provides the same screenshots again.
-8.  **the app is also crashing once you start the bot. also utc time lock may be too aggressive...:** User reports the crash and that the UTC trading pause is too restrictive.
-9.  **when I click the advanced link its not building the list:** User reports the Advanced settings toggle is not working.
-10. **it installed. the api key settings has no where to enter...:** User successfully installed the APK but cannot find where to input API keys.
+1.  **Build Failure:** User provided logs showing the build is failing (nope).
+2.  **Request for Verification:** User asked the agent to check if the trading function works as intended.
+3.  **Request for Simulation:** User requested a full trade simulation to be added to the app.
+4.  **Wallet Persistence Requirement:** User clarified that the wallet should remain hard connected unless manually disconnected.
+5.  **Report of Multiple Failures:** User reported the wallet, balance display, and scanner are all broken, providing screenshots showing a connected wallet but a /bin/bash.00 balance and empty watchlist.
+6.  **Report of Scanner Failure:** User stated the scanner is not returning any results at all.
+7.  **Request for Treasury Verification:** User asked the agent to ensure the automatic funding/compounding treasury mechanism works.
+8.  **Report of Wallet Persistence Failure:** User reported the wallet does not stay connected between screens.
+9.  **Complaint about Scanner Logic:** User complained that the scanner was finding the wrong type of tokens (established coins like PEPE/DOGE) and provided a detailed architectural document for the correct v7 trading logic.
+10. **Report of UI Navigation Bug:** User reported being unable to return to the main UI from the wallet screen.
 
 **Project Health Check:**
-*   **Broken:**
-    *   Android App Runtime (crashes on start, wallet non-functional).
-*   **Mocked:**
-    *   Web dashboard data is currently sample data.
+-   **Broken:**
+    -   Build Process (Compilation Failure)
+    -   Android App Core Functionality (AI trading logic, market scanning)
+    -   Wallet Connection Persistence
+    -   Wallet Balance Display
 
 **3rd Party Integrations**
-*   **Helius:** RPC and API access. Requires a user-provided API key.
-*   **Birdeye:** Token data API. Requires a user-provided API key.
-*   **Groq:** LLM for sentiment analysis. Requires a user-provided API key.
-*   **CoinGecko:** Used for some market data (free tier).
-*   **Telegram:** For notifications. Requires a user-provided token/chat ID.
+*   Helius: RPC and API access.
+*   Birdeye: Token data API.
+*   Groq: LLM for sentiment analysis.
+*   CoinGecko: Market data.
+*   Telegram: Notifications.
+*   DexScreener, pump.fun, Raydium: Token data sources for the scanner.
 
 **Testing status**
--   **Testing agent used after significant changes:** YES (for the web dashboard, which passed).
--   **Troubleshoot agent used after agent stuck in loop:** YES (to analyze the initial 80+ Kotlin errors).
--   **Test files created:** None.
--   **Known regressions:** The wallet connection feature was reportedly working but is now broken.
+-   Testing agent used after significant changes: NO
+-   Troubleshoot agent used after agent stuck in loop: NO
+-   Test files created: None
+-   Known regressions: The core trading logic was reportedly working in a much earlier version but is now completely non-functional. The scanner's functionality has regressed due to aggressive but ineffective memory optimizations.
 
 **What agent forgot to execute**
-The agent has repeatedly tried to fix the runtime crash by adding  blocks and making assumptions about the cause. It has failed to take the most critical debugging step: **asking the user to provide on-device logs ()**. The last build was instrumented with extensive logging for this exact purpose, but the agent never followed through to analyze the output. This has led to multiple cycles of failed fixes.</analysis>
+The agent failed to  the crucial fixes for the build-breaking errors it had just implemented. This left the project in an un-buildable state. More broadly, the agent has been stuck in a reactive whack-a-mole cycle, failing to address the root causes of instability and lack of functionality in the scanner and wallet systems, leading to over 50 builds without solving the user's primary problem. The addition of a complex, buggy trade simulation feature before fixing the core brokenness exemplifies this flawed approach.</analysis>

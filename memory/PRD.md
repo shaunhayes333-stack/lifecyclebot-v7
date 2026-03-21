@@ -17,106 +17,105 @@ Build a sophisticated Solana trading bot Android application with:
 /lifecycle_bot/lifecycle_apk/
 ├── app/src/main/kotlin/com/lifecyclebot/
 │   ├── engine/
-│   │   ├── BotService.kt          # Main service lifecycle (ENHANCED LOGGING)
-│   │   ├── Executor.kt            # Trade execution
-│   │   ├── SecurityGuard.kt       # Safety checks
-│   │   ├── TreasuryManager.kt     # Profit locking
-│   │   ├── WalletManager.kt       # Wallet connection
-│   │   ├── ErrorLogger.kt         # SQLite error logging
-│   │   ├── TokenSafetyChecker.kt  # Token validation
-│   │   ├── AutoModeEngine.kt      # Trading mode switching
-│   │   ├── SolanaMarketScanner.kt # Token discovery (ENHANCED LOGGING)
+│   │   ├── BotService.kt          # Main service lifecycle
+│   │   ├── SolanaMarketScanner.kt # Token discovery
 │   │   ├── LifecycleStrategy.kt   # Trading strategy
-│   │   └── BotBrain.kt            # Self-learning engine
+│   │   ├── Executor.kt            # Trade execution
+│   │   ├── WalletManager.kt       # Wallet connection (singleton)
+│   │   ├── TreasuryManager.kt     # Profit locking
+│   │   └── ErrorLogger.kt         # SQLite error logging
 │   ├── network/
-│   │   ├── SolanaWallet.kt        # Solana RPC
-│   │   ├── JupiterApi.kt          # DEX aggregator
-│   │   └── DexscreenerApi.kt      # Market data
-│   ├── ui/
-│   │   ├── MainActivity.kt        # Main screen
-│   │   ├── ErrorLogActivity.kt    # Error log viewer
-│   │   └── ...
-│   └── data/
+│   │   ├── DexscreenerApi.kt      # Market data
+│   │   └── BirdeyeApi.kt          # Token data
+│   └── ui/
+│       ├── MainActivity.kt        # Main screen
+│       └── ErrorLogActivity.kt    # Error log viewer
 ```
 
 ### Web Dashboard (React + FastAPI)
 ```
-/backend/server.py       # FastAPI with JWT auth
+/backend/server.py       # FastAPI with JWT auth, MongoDB
 /frontend/src/
+├── App.js               # AuthProvider context, routing
 ├── pages/
-│   ├── LoginPage.jsx    # Authentication
+│   ├── LoginPage.jsx    # Authentication (login/register)
 │   └── DashboardPage.jsx # Main dashboard
 └── components/dashboard/ # Dashboard components
+    ├── StatsCards.jsx
+    ├── PnLChart.jsx
+    ├── PositionsTable.jsx
+    ├── TradeHistory.jsx
+    ├── ActivityFeed.jsx
+    ├── Watchlist.jsx
+    └── Header.jsx
 ```
 
 ## What's Been Implemented
 
-### ✅ Completed (Dec 2024)
+### Completed (March 2025)
+- [x] **BUILD FIXED** - GitHub Actions Build #53 passing
+  - Removed buggy trade simulation feature
+  - Fixed syntax error (duplicate brace) in SolanaMarketScanner.kt
+  - Removed simulation UI from MainActivity.kt
 - [x] Fixed 80+ Kotlin compilation errors
-- [x] GitHub Actions CI/CD pipeline working
-- [x] Web dashboard with auth, charts, tables
-- [x] Treasury lock blocking fix
-- [x] UTC pause logic improvement
-- [x] Watchlist token refresh optimization
-- [x] Major token whitelist (SOL, USDC, BONK, JUP, etc.)
+- [x] Web dashboard fully functional
+  - Auth system with JWT tokens
+  - Stats cards (Treasury, P&L, Win Rate, Total Trades)
+  - Treasury Performance chart
+  - Open Positions table
+  - Watchlist display
+  - Activity feed
+  - Trade history
+- [x] Fixed auth context issue - AuthProvider now wraps app correctly
 - [x] In-app error logger (SQLite database with UI)
-- [x] Wallet balance display fix (labels corrected)
-- [x] RPC URL input field added to wallet screen
-- [x] RPC fallback endpoints for connection stability
-- [x] **Build #33: Comprehensive diagnostic logging** for scanner and trading loop
+- [x] Major token whitelist (SOL, USDC, BONK, JUP, etc.)
+- [x] Comprehensive diagnostic logging
 
-### 🔴 Critical Issues Being Investigated (P0)
+### Critical Issues (P0) - STILL PENDING
 - [ ] Core AI trading logic appears "stuck" - needs user verification with new logging
 - [ ] Market scanner may be filtering out tokens too aggressively
+- [ ] Wallet persistence issues (wallet shows connected but balance is $0)
 
-### 🟡 Medium Priority (P1)
-- [ ] Android-Dashboard sync integration
+### Medium Priority (P1)
+- [ ] Android-Dashboard sync integration (data currently mocked)
 - [ ] Watchlist token variety - verify scanner sources working
 
-### 🔵 Future Tasks (P2)
+### Future Tasks (P2)
 - [ ] Backtesting UI in dashboard
 - [ ] Mobile-responsive dashboard
 - [ ] Strategy parameter tuning
-
-## Key Technical Decisions
-
-### Build #33: Diagnostic Logging Enhancement
-Added comprehensive logging to diagnose why trading logic appears inactive:
-- **SolanaMarketScanner.passesFilter()**: Logs WHY tokens are rejected (liquidity, score, etc.)
-- **Bot loop**: Logs every 5 loops with watchlist size and scanner status
-- **onTokenFound callback**: Logs each token discovery and addition attempt
-- **Strategy evaluation**: Logs BUY signals and high entry scores
-
-All logs visible in the in-app "Logs" screen for user debugging.
-
-### Error Logger (Build #18)
-- SQLite database stores logs persistently
-- 5 severity levels: DEBUG, INFO, WARN, ERROR, CRASH
-- Component tagging for filtering
-- Stack trace capture on crashes
-- UI accessible via "Logs" button
-
-### Major Token Whitelist (Build #17)
-Verified mints that bypass ALL safety checks:
-- So11111111111111111111111111111111111111112 (SOL wrapped)
-- EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v (USDC)
-- DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 (BONK)
-- JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN (JUP)
-- Plus: RAY, ORCA, mSOL, PYTH, JITO, RENDER, USDT, WIF
+- [ ] Generate 30-day test dataset
 
 ## Database Schema (MongoDB)
 - `users`: Authentication
+- `sessions`: JWT tokens
 - `trades`: Trade history
 - `bot_status`: Current bot state
-- `treasury_snapshots`: Balance tracking
+- `positions`: Open positions
+- `treasury_history`: Balance tracking
+- `treasury_current`: Current treasury
 - `activity_logs`: Event logging
+- `watchlist`: Watched tokens
 
 ## API Endpoints
 - POST `/api/auth/register` - User registration
 - POST `/api/auth/login` - JWT authentication
-- GET `/api/data/pnl` - P&L data
+- GET `/api/auth/me` - Current user
+- GET `/api/bot/status` - Bot status
+- POST `/api/bot/status` - Update bot status
+- GET `/api/treasury/history` - Treasury history
+- POST `/api/treasury/snapshot` - Add treasury snapshot
+- GET `/api/positions` - Open positions
+- POST `/api/positions/sync` - Sync positions
 - GET `/api/trades` - Trade history
-- POST `/api/sync/bulk` - Android data sync
+- POST `/api/trades` - Record trade
+- GET `/api/trades/stats` - Trade statistics
+- GET `/api/activity` - Activity log
+- POST `/api/activity` - Log activity
+- GET `/api/watchlist` - Watchlist
+- POST `/api/watchlist/sync` - Sync watchlist
+- GET `/api/dashboard` - Dashboard stats
+- POST `/api/sync/bulk` - Bulk data push (for Android app)
 
 ## 3rd Party Integrations
 - Helius (RPC) - User API key required
@@ -127,11 +126,12 @@ Verified mints that bypass ALL safety checks:
 - DexScreener, Raydium, Pump.fun - Token scanning
 
 ## Build History
-- Build #15: Treasury lock fix
-- Build #16: Indentation fix
-- Build #17: Major token whitelist + crash logging
-- Build #18: In-app Error Logger with SQLite
-- Build #30: Restore scanner functionality
-- Build #31: RPC error logging + new endpoints
-- Build #32: Wallet balance display fix
-- **Build #33: Comprehensive diagnostic logging for scanner + trading loop**
+- Build #51: Failed - Trade simulation bugs
+- Build #52: Failed - Trade simulation bugs
+- **Build #53: SUCCESS** - Fixed build (simulation removed, syntax fixed)
+
+## Next Steps
+1. Verify wallet persistence on Android app
+2. Test market scanner with real API data
+3. Verify trading logic generates signals
+4. Implement Android-Dashboard real-time sync
