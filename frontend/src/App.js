@@ -1,50 +1,91 @@
-import { useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+
+// Pages
+import LoginPage from "@/pages/LoginPage";
+import DashboardPage from "@/pages/DashboardPage";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+export const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
+// Auth context
+export const useAuth = () => {
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [username, setUsername] = useState(localStorage.getItem('username'));
+
+  const login = (newToken, newUsername) => {
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('username', newUsername);
+    setToken(newToken);
+    setUsername(newUsername);
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    setToken(null);
+    setUsername(null);
+  };
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
+  const isAuthenticated = !!token;
+
+  return { token, username, login, logout, isAuthenticated };
+};
+
+// API helper with auth
+export const apiClient = axios.create({
+  baseURL: API,
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Protected Route wrapper
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
 };
 
 function App() {
   return (
-    <div className="App">
+    <div className="App min-h-screen bg-zinc-950">
+      <Toaster richColors position="top-right" />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>
