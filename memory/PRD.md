@@ -10,6 +10,30 @@ Build a sophisticated Solana trading bot Android application with:
 6. Build web dashboard to visualize bot activity
 7. Integrate Android app with web dashboard
 
+## CRITICAL FINDINGS - Why Bot Hasn't Traded
+
+### Root Cause Analysis
+After analyzing the codebase, the primary reasons the bot has not executed a single trade:
+
+1. **`autoTrade` defaults to `false`** (BotConfig.kt line 14)
+   - Even when the bot is "running", it won't execute trades unless this is enabled
+   - User MUST enable "Auto Trade" in the app's settings
+
+2. **Strategy requires 3+ candles** (LifecycleStrategy.kt line 72-74)
+   - New tokens without historical data return "bootstrap" phase with "WAIT" signal
+   - Need at least 3 data points before any BUY signal can be generated
+
+3. **Entry threshold is high** 
+   - Launch snipe mode: 42-65 entry score required depending on phase
+   - Range trade mode: 38-50 entry score required
+   - Many tokens may never reach these thresholds
+
+### Recommendations for User
+1. **Enable Auto Trade** in app settings
+2. **Enable Paper Mode** first to test without real money
+3. **Check Logs** - the in-app error logger shows exactly why trades aren't happening
+4. **Lower thresholds** if needed (exitScoreThreshold, minDiscoveryScore)
+
 ## Current Architecture
 
 ### Mobile App (Android/Kotlin)
@@ -18,9 +42,9 @@ Build a sophisticated Solana trading bot Android application with:
 ├── app/src/main/kotlin/com/lifecyclebot/
 │   ├── engine/
 │   │   ├── BotService.kt          # Main service lifecycle
-│   │   ├── SolanaMarketScanner.kt # Token discovery
-│   │   ├── LifecycleStrategy.kt   # Trading strategy
-│   │   ├── Executor.kt            # Trade execution
+│   │   ├── SolanaMarketScanner.kt # Token discovery (DexScreener, Raydium, Birdeye)
+│   │   ├── LifecycleStrategy.kt   # Trading strategy (1700+ lines of logic)
+│   │   ├── Executor.kt            # Trade execution (1000+ lines)
 │   │   ├── WalletManager.kt       # Wallet connection (singleton)
 │   │   ├── TreasuryManager.kt     # Profit locking
 │   │   └── ErrorLogger.kt         # SQLite error logging
@@ -41,13 +65,6 @@ Build a sophisticated Solana trading bot Android application with:
 │   ├── LoginPage.jsx    # Authentication (login/register)
 │   └── DashboardPage.jsx # Main dashboard
 └── components/dashboard/ # Dashboard components
-    ├── StatsCards.jsx
-    ├── PnLChart.jsx
-    ├── PositionsTable.jsx
-    ├── TradeHistory.jsx
-    ├── ActivityFeed.jsx
-    ├── Watchlist.jsx
-    └── Header.jsx
 ```
 
 ## What's Been Implemented
@@ -55,83 +72,66 @@ Build a sophisticated Solana trading bot Android application with:
 ### Completed (March 2025)
 - [x] **BUILD FIXED** - GitHub Actions Build #53 passing
   - Removed buggy trade simulation feature
-  - Fixed syntax error (duplicate brace) in SolanaMarketScanner.kt
-  - Removed simulation UI from MainActivity.kt
-- [x] Fixed 80+ Kotlin compilation errors
+  - Fixed syntax error in SolanaMarketScanner.kt
 - [x] Web dashboard fully functional
-  - Auth system with JWT tokens
-  - Stats cards (Treasury, P&L, Win Rate, Total Trades)
-  - Treasury Performance chart
-  - Open Positions table
-  - Watchlist display
-  - Activity feed
-  - Trade history
-- [x] Fixed auth context issue - AuthProvider now wraps app correctly
-- [x] In-app error logger (SQLite database with UI)
-- [x] Major token whitelist (SOL, USDC, BONK, JUP, etc.)
-- [x] Comprehensive diagnostic logging
+  - Auth system with JWT tokens  
+  - Stats cards, Treasury chart, Positions, Watchlist, Activity feed, Trade history
+- [x] Fixed auth context - AuthProvider now wraps app correctly
+- [x] Login/register flow working
+- [x] In-app error logger (SQLite with UI)
+- [x] Comprehensive diagnostic logging in scanner and strategy
 
-### Critical Issues (P0) - STILL PENDING
-- [ ] Core AI trading logic appears "stuck" - needs user verification with new logging
-- [ ] Market scanner may be filtering out tokens too aggressively
-- [ ] Wallet persistence issues (wallet shows connected but balance is $0)
+### Critical Issues (P0) - FOR USER TO TEST
+- [ ] **Enable Auto Trade** and verify trading signals
+- [ ] Check why scanner may not be finding tokens (filters may be too strict)
+- [ ] Wallet persistence - verify wallet stays connected between screens
 
 ### Medium Priority (P1)
-- [ ] Android-Dashboard sync integration (data currently mocked)
-- [ ] Watchlist token variety - verify scanner sources working
+- [ ] Android-Dashboard real-time sync (API ready at `/api/sync/bulk`)
+- [ ] Watchlist token variety
 
 ### Future Tasks (P2)
 - [ ] Backtesting UI in dashboard
 - [ ] Mobile-responsive dashboard
 - [ ] Strategy parameter tuning
-- [ ] Generate 30-day test dataset
+- [ ] 30-day test dataset generation
 
-## Database Schema (MongoDB)
-- `users`: Authentication
-- `sessions`: JWT tokens
-- `trades`: Trade history
-- `bot_status`: Current bot state
-- `positions`: Open positions
-- `treasury_history`: Balance tracking
-- `treasury_current`: Current treasury
-- `activity_logs`: Event logging
-- `watchlist`: Watched tokens
+## Key Configuration Values (BotConfig.kt)
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `autoTrade` | **false** | Must enable to execute trades |
+| `paperMode` | true | Simulate trades without real money |
+| `minLiquidityUsd` | 3000 | Min liquidity for scanner |
+| `minDiscoveryScore` | 25 | Min score to add token to watchlist |
+| `exitScoreThreshold` | 58 | Score to trigger exit |
+| `fullMarketScanEnabled` | true | Enable scanner |
+| `scanIntervalSecs` | 5 | Scanner poll interval |
 
 ## API Endpoints
 - POST `/api/auth/register` - User registration
 - POST `/api/auth/login` - JWT authentication
-- GET `/api/auth/me` - Current user
-- GET `/api/bot/status` - Bot status
-- POST `/api/bot/status` - Update bot status
-- GET `/api/treasury/history` - Treasury history
-- POST `/api/treasury/snapshot` - Add treasury snapshot
-- GET `/api/positions` - Open positions
-- POST `/api/positions/sync` - Sync positions
-- GET `/api/trades` - Trade history
-- POST `/api/trades` - Record trade
-- GET `/api/trades/stats` - Trade statistics
-- GET `/api/activity` - Activity log
-- POST `/api/activity` - Log activity
-- GET `/api/watchlist` - Watchlist
-- POST `/api/watchlist/sync` - Sync watchlist
 - GET `/api/dashboard` - Dashboard stats
-- POST `/api/sync/bulk` - Bulk data push (for Android app)
+- POST `/api/sync/bulk` - Bulk data push from Android app
+- GET `/api/positions` - Open positions
+- GET `/api/trades` - Trade history
+- GET `/api/watchlist` - Watchlist
+- GET `/api/treasury/history` - Treasury history
 
 ## 3rd Party Integrations
 - Helius (RPC) - User API key required
 - Birdeye (Token data) - User API key required
-- Groq (LLM sentiment) - User API key required
-- CoinGecko (Market data) - Free tier
-- Telegram (Notifications) - User token required
-- DexScreener, Raydium, Pump.fun - Token scanning
+- Groq (LLM sentiment) - Optional
+- DexScreener, Raydium, Pump.fun - Free APIs for token scanning
 
 ## Build History
-- Build #51: Failed - Trade simulation bugs
-- Build #52: Failed - Trade simulation bugs
-- **Build #53: SUCCESS** - Fixed build (simulation removed, syntax fixed)
+- Build #51-52: Failed - Trade simulation bugs
+- **Build #53: SUCCESS** - Fixed build
 
-## Next Steps
-1. Verify wallet persistence on Android app
-2. Test market scanner with real API data
-3. Verify trading logic generates signals
-4. Implement Android-Dashboard real-time sync
+## Next Steps for User
+1. Download APK from GitHub Actions artifacts
+2. Install on Android device
+3. Go to Settings → Enable "Auto Trade" and "Paper Mode"
+4. Connect wallet
+5. Start bot
+6. Check Logs to see scanner activity and why signals may be blocked
