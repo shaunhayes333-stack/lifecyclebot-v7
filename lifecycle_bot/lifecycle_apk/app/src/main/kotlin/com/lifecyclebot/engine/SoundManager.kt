@@ -3,6 +3,7 @@ package com.lifecyclebot.engine
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.media.SoundPool
 import android.media.ToneGenerator
 import android.os.Handler
@@ -11,28 +12,38 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.os.Build
+import com.lifecyclebot.R
 
 /**
- * SoundManager
+ * SoundManager v2
  *
- * Plays synthesised sounds for trading events using Android's ToneGenerator
- * and SoundPool. No audio files needed — all sounds are generated programmatically.
+ * Plays custom sound files for trading events using MediaPlayer.
+ * Falls back to ToneGenerator if custom sounds are unavailable.
  *
- * PROFIT SELL  → Classic cash register: ascending ding sequence
- * LOSS/STOP    → Warning siren: descending wail
- * MILESTONE    → Escalating tones at 50%, 100%, 200% gain while holding
- * NEW TOKEN    → Short alert ping (Pump.fun WebSocket new token detected)
- * SAFETY BLOCK → Low buzzer (token blocked by safety checker)
+ * CUSTOM SOUNDS (from res/raw/):
+ *   - woohoo.mp3    → BUY events (Homer "Woohoo!")
+ *   - awesome.mp3   → BLOCK/SAFETY events (Peter Griffin "Awesome")
+ *
+ * FALLBACK (ToneGenerator):
+ *   - PROFIT SELL   → Ascending ding sequence
+ *   - LOSS/STOP     → Descending wail
+ *   - MILESTONE     → Escalating tones
+ *   - NEW TOKEN     → Short alert ping
  *
  * All sounds respect the device's volume and Do Not Disturb settings.
- * Can be muted from settings.
  */
 class SoundManager(private val ctx: Context) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var enabled = true
 
-    // ToneGenerator for simple synthesised tones
+    // Audio attributes for media playback
+    private val audioAttrs = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+
+    // ToneGenerator for simple synthesised tones (fallback)
     private fun makeTone(): ToneGenerator? = try {
         ToneGenerator(AudioManager.STREAM_NOTIFICATION, 85)
     } catch (_: Exception) { null }
@@ -47,6 +58,66 @@ class SoundManager(private val ctx: Context) {
     }
 
     fun setEnabled(v: Boolean) { enabled = v }
+
+    // ── Custom Sound Playback ─────────────────────────────────────────
+
+    /**
+     * Play a custom sound from res/raw/ using MediaPlayer.
+     * Falls back to ToneGenerator if the resource doesn't exist.
+     */
+    private fun playCustomSound(resId: Int, fallbackTone: Int = ToneGenerator.TONE_PROP_ACK) {
+        if (!enabled) return
+        mainHandler.post {
+            try {
+                val mp = MediaPlayer.create(ctx, resId)
+                if (mp != null) {
+                    mp.setAudioAttributes(audioAttrs)
+                    mp.setOnCompletionListener { it.release() }
+                    mp.setOnErrorListener { player, _, _ -> 
+                        player.release()
+                        // Fallback to tone on error
+                        makeTone()?.startTone(fallbackTone, 200)
+                        true 
+                    }
+                    mp.start()
+                } else {
+                    // Resource not found — use fallback tone
+                    makeTone()?.startTone(fallbackTone, 200)
+                }
+            } catch (e: Exception) {
+                // Any error — use fallback tone
+                makeTone()?.startTone(fallbackTone, 200)
+            }
+        }
+    }
+
+    // ── BUY sound (Homer "Woohoo!") ───────────────────────────────────
+    fun playBuySound() {
+        if (!enabled) return
+        try {
+            playCustomSound(R.raw.woohoo, ToneGenerator.TONE_PROP_ACK)
+        } catch (_: Exception) {
+            // R.raw.woohoo not available — use tone fallback
+            mainHandler.post {
+                makeTone()?.startTone(ToneGenerator.TONE_PROP_ACK, 200)
+            }
+        }
+        vibratePattern(longArrayOf(0, 100, 50, 100))
+    }
+
+    // ── BLOCK sound (Peter Griffin "Awesome") ─────────────────────────
+    fun playBlockSound() {
+        if (!enabled) return
+        try {
+            playCustomSound(R.raw.awesome, ToneGenerator.TONE_PROP_NACK)
+        } catch (_: Exception) {
+            // R.raw.awesome not available — use tone fallback
+            mainHandler.post {
+                makeTone()?.startTone(ToneGenerator.TONE_PROP_NACK, 200)
+            }
+        }
+        vibratePattern(longArrayOf(0, 80, 40, 80))
+    }
 
     // ── Cash register (profitable sell) ──────────────────────────────
     // Classic "cha-ching" — ascending notes then a long ring
@@ -120,13 +191,8 @@ class SoundManager(private val ctx: Context) {
     // ── Safety block alert ────────────────────────────────────────────
     fun playSafetyBlock() {
         if (!enabled) return
-        mainHandler.post {
-            playSequence(listOf(
-                Pair(ToneGenerator.TONE_PROP_NACK, 150),
-                Pair(ToneGenerator.TONE_PROP_NACK, 150),
-            ), delayMs = 120)
-            vibratePattern(longArrayOf(0, 80, 40, 80))
-        }
+        // Use custom "awesome" sound for blocks
+        playBlockSound()
     }
 
     // ── Circuit breaker triggered ─────────────────────────────────────

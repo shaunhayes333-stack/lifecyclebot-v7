@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timedelta, timezone
 import random
 
-API_URL = "https://dex-strategy-v7.preview.emergentagent.com/api"
+API_URL = "https://bot-backtest.preview.emergentagent.com/api"
 
 def login():
     """Login and get token."""

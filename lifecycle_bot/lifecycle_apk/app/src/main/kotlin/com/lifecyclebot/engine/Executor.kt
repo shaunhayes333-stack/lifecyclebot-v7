@@ -685,6 +685,7 @@ class Executor(
         security.recordTrade(trade)
         onLog("PAPER BUY  @ ${price.fmt()} | ${sol.fmt(4)} SOL | score=${score.toInt()}", ts.mint)
         onNotify("📈 Paper Buy", "${ts.symbol}  ${sol.fmt(3)} SOL  (score ${score.toInt()})", com.lifecyclebot.engine.NotificationHistory.NotifEntry.NotifType.INFO)
+        sounds?.playBuySound()
     }
 
     private fun liveBuy(ts: TokenState, sol: Double, score: Double,
@@ -752,6 +753,7 @@ class Executor(
             onLog("LIVE BUY  @ ${price.fmt()} | ${sol.fmt(4)} SOL | " +
                   "impact=${quote.priceImpactPct.fmt(2)}% | sig=${sig.take(16)}…", ts.mint)
             onNotify("✅ Live Buy", "${ts.symbol}  ${sol.fmt(3)} SOL", com.lifecyclebot.engine.NotificationHistory.NotifEntry.NotifType.INFO)
+            sounds?.playBuySound()
 
         } catch (e: Exception) {
             val safe = security.sanitiseForLog(e.message ?: "unknown")

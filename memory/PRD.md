@@ -4,12 +4,22 @@
 Build a sophisticated Solana trading bot Android application that autonomously scans, learns, and trades.
 
 ## BUILD STATUS (All Passing ✅)
-- **Build #53**: Fixed compilation errors
-- **Build #54**: Enabled autonomous mode
-- **Build #55**: Fixed DexScreener API endpoints
-- **Build #56**: Paper mode now uses wallet balance
+- **Build #53-#63**: Stable builds with continuous improvements
+- **Latest fixes (Dec 2025)**: Sound system upgrade, autonomous mode enabled by default
 
 ## LATEST IMPROVEMENTS
+
+### Sound System v2 (Dec 2025)
+- Added support for custom sound files via MediaPlayer (woohoo.mp3, awesome.mp3)
+- Automatic fallback to ToneGenerator if custom sounds unavailable
+- `playBuySound()` triggers on BUY events (Homer "Woohoo!")
+- `playBlockSound()` triggers on BLOCK/SAFETY events (Peter Griffin "Awesome")
+- All existing sounds (cash register, milestone, warning siren) preserved
+
+### Autonomous Mode Enabled by Default (Dec 2025)
+- `autoTrade` now defaults to `true` for autonomous operation
+- `autoAddNewTokens` now defaults to `true` for auto-scanning
+- Users can still disable in settings if desired
 
 ### WebSocket Real-Time Dashboard (Web)
 - Added WebSocket endpoint `/ws/{token}` for live updates
@@ -17,13 +27,13 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 - Falls back to polling when WebSocket unavailable
 - Real-time updates when Android app syncs data
 
-### Paper Trading with Real Balance (Android - Build #56)
+### Paper Trading with Real Balance (Android)
 - Paper wallet syncs with real wallet balance on connect
 - Paper trades deduct/add from paper balance
 - Learning engine receives proper trade data
 - P&L calculations reflect real position sizing
 
-### DexScreener Scanner Fix (Android - Build #55)
+### DexScreener Scanner Fix (Android)
 - Changed from broken `/latest/dex/pairs/solana/raydium` endpoint
 - Now uses `/latest/dex/search?q=solana` which works
 - Scanner finds Solana tokens with >$3K liquidity
@@ -36,13 +46,14 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 /lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/
 ├── engine/
 │   ├── BotService.kt          # Main bot loop
-│   ├── SolanaMarketScanner.kt # Token discovery (FIXED)
+│   ├── SolanaMarketScanner.kt # Token discovery
 │   ├── LifecycleStrategy.kt   # Trading signals
-│   ├── Executor.kt            # Trade execution
+│   ├── Executor.kt            # Trade execution (with sound triggers)
+│   ├── SoundManager.kt        # Custom sounds + fallbacks
 │   ├── BotBrain.kt            # Self-learning (3 layers)
 │   └── ShadowLearningEngine.kt # Parallel simulations
 ├── data/
-│   ├── BotConfig.kt           # Settings (autoTrade=true)
+│   ├── BotConfig.kt           # Settings (autoTrade=true, autoAddNewTokens=true)
 │   └── Models.kt              # Paper wallet tracking
 └── ui/
     └── MainActivity.kt
@@ -69,10 +80,17 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `autoTrade` | **true** | Autonomous trading |
-| `autoAddNewTokens` | **true** | Auto-scan launches |
-| `paperMode` | true | Simulate first |
-| `minLiquidityUsd` | 3000 | Min liquidity filter |
+| `autoTrade` | **true** | Autonomous trading enabled by default |
+| `autoAddNewTokens` | **true** | Auto-scan pump.fun launches |
+| `paperMode` | true | Simulate first (disable for live) |
+| `minLiquidityUsd` | 8000 | Min liquidity filter |
+| `soundEnabled` | true | Play audio feedback on trades |
+
+## Custom Sound Files (res/raw/)
+| File | Event | Fallback |
+|------|-------|----------|
+| `woohoo.mp3` | BUY executed | ToneGenerator ACK |
+| `awesome.mp3` | Token BLOCKED | ToneGenerator NACK |
 
 ## Self-Learning System
 
@@ -100,14 +118,25 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 - Message types: `init`, `update`, `sync_update`, `heartbeat`
 
 ## Dashboard Access
-- **URL**: https://dex-strategy-v7.preview.emergentagent.com
+- **URL**: https://bot-backtest.preview.emergentagent.com
 - **Login**: testuser / test123
 
 ## User Flow
-1. Download APK from GitHub Actions Build #56
+1. Download APK from GitHub Actions (latest build)
 2. Install on Android, connect wallet
 3. Paper wallet syncs with real balance
 4. Scanner finds tokens → adds to watchlist
 5. Strategy evaluates → generates signals
 6. Paper trades execute → learning engine fed
-7. Dashboard updates in real-time via WebSocket
+7. On BUY: "Woohoo!" sound plays
+8. On BLOCK: "Awesome" sound plays
+9. Dashboard updates in real-time via WebSocket
+
+## Known Issues / In Progress
+1. **Bot stops when minimized** - START_STICKY added, battery optimization check needed
+2. **Scanner token yield** - May need additional data sources or filter tuning
+
+## Files Modified (Dec 2025)
+- `SoundManager.kt` - Added MediaPlayer support for custom sounds
+- `Executor.kt` - Added `playBuySound()` calls on BUY events
+- `BotConfig.kt` - Changed `autoTrade` and `autoAddNewTokens` defaults to `true`
