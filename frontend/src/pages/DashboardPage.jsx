@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient, useAuth } from "@/App";
+import { apiClient, useAuth, API } from "@/App";
 import { toast } from "sonner";
 
 // Components
@@ -14,7 +14,7 @@ import Header from "@/components/dashboard/Header";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { logout, username } = useAuth();
+  const { logout, username, token } = useAuth();
   
   const [dashboardData, setDashboardData] = useState(null);
   const [positions, setPositions] = useState([]);
@@ -24,6 +24,78 @@ export default function DashboardPage() {
   const [treasuryHistory, setTreasuryHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [wsConnected, setWsConnected] = useState(false);
+  
+  const wsRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
+
+  // WebSocket connection for real-time updates
+  useEffect(() => {
+    if (!token) return;
+
+    const connectWebSocket = () => {
+      // Convert HTTP URL to WebSocket URL
+      const wsUrl = API.replace('https://', 'wss://').replace('http://', 'ws://').replace('/api', '') + `/ws/${token}`;
+      
+      try {
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          setWsConnected(true);
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'init' || message.type === 'update' || message.type === 'sync_update') {
+              const data = message.data;
+              if (data.positions) setPositions(data.positions);
+              if (data.trades) setTrades(data.trades);
+              if (data.watchlist) setWatchlist(data.watchlist);
+              if (data.stats) {
+                setDashboardData(prev => ({ ...prev, ...data.stats }));
+              }
+              setLastRefresh(new Date());
+            } else if (message.type === 'heartbeat') {
+              // Respond to heartbeat
+              ws.send(JSON.stringify({ type: 'pong' }));
+            }
+          } catch (e) {
+            console.error('Failed to parse WebSocket message:', e);
+          }
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket disconnected');
+          setWsConnected(false);
+          // Reconnect after 5 seconds
+          reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
+        };
+
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          ws.close();
+        };
+      } catch (e) {
+        console.error('Failed to create WebSocket:', e);
+        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
+      }
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [token]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -98,6 +170,7 @@ export default function DashboardPage() {
         lastRefresh={lastRefresh}
         isLoading={isLoading}
         botStatus={dashboardData}
+        wsConnected={wsConnected}
       />
 
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

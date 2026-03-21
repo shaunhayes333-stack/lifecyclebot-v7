@@ -3,62 +3,67 @@
 ## Original Problem Statement
 Build a sophisticated Solana trading bot Android application that autonomously scans, learns, and trades.
 
-## BUILD STATUS
-- **Build #53**: SUCCESS - Fixed compilation errors
-- **Build #54**: SUCCESS - Enabled autonomous mode
-- **Build #55**: SUCCESS - Fixed DexScreener API endpoints
-- **Build #56**: SUCCESS - Paper mode now uses wallet balance
+## BUILD STATUS (All Passing ✅)
+- **Build #53**: Fixed compilation errors
+- **Build #54**: Enabled autonomous mode
+- **Build #55**: Fixed DexScreener API endpoints
+- **Build #56**: Paper mode now uses wallet balance
 
-## LATEST FIX - Paper Trading with Real Balance (Build #56)
+## LATEST IMPROVEMENTS
 
-### Problem
-Paper mode wasn't feeding the learning system because:
-1. Without wallet connection, `walletSol` was 0
-2. Position sizing returned 0 (no balance = no trades)
-3. Learning engine got no data
+### WebSocket Real-Time Dashboard (Web)
+- Added WebSocket endpoint `/ws/{token}` for live updates
+- Dashboard auto-connects and shows "Live" when connected
+- Falls back to polling when WebSocket unavailable
+- Real-time updates when Android app syncs data
 
-### Solution
-- Added `paperWalletSol` to track simulated balance
-- Paper wallet syncs with real wallet balance on first connection
-- Paper buys deduct from paper balance
-- Paper sells add proceeds back
-- All trade decisions now use effective balance
+### Paper Trading with Real Balance (Android - Build #56)
+- Paper wallet syncs with real wallet balance on connect
+- Paper trades deduct/add from paper balance
+- Learning engine receives proper trade data
+- P&L calculations reflect real position sizing
 
-### How Learning Works Now
-1. **Paper buy** → Deducts SOL from paper wallet
-2. **Paper sell** → Adds proceeds, calculates P&L
-3. **BotBrain** receives trade data:
-   - Bad observations for losing trades
-   - Good observations for winning trades
-4. **Every 20 trades** → Statistical learning adjusts thresholds
-5. **Every 50 trades** → LLM analysis (if Groq key set)
-
-## Core Functionality - AUTONOMOUS OPERATION
-
-### 1. Scanner (SolanaMarketScanner.kt)
-- Uses DexScreener search API (`/latest/dex/search?q=solana`)
-- Filters: chainId=solana, >$3K liquidity
+### DexScreener Scanner Fix (Android - Build #55)
+- Changed from broken `/latest/dex/pairs/solana/raydium` endpoint
+- Now uses `/latest/dex/search?q=solana` which works
+- Scanner finds Solana tokens with >$3K liquidity
 - Detects pump.fun tokens and graduates
-- Auto-adds to watchlist
 
-### 2. Self-Learning Engine (BotBrain.kt)
-**Layer 1 - Statistical (every 20 trades)**
-- Win rate analysis per signal combo
-- Auto-adjusts thresholds
-- Bad behaviour registry
+## Architecture
 
-**Layer 2 - LLM (every 50 trades)**
-- Groq deep analysis
-- Pattern recognition
+### Mobile App (Android/Kotlin)
+```
+/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/
+├── engine/
+│   ├── BotService.kt          # Main bot loop
+│   ├── SolanaMarketScanner.kt # Token discovery (FIXED)
+│   ├── LifecycleStrategy.kt   # Trading signals
+│   ├── Executor.kt            # Trade execution
+│   ├── BotBrain.kt            # Self-learning (3 layers)
+│   └── ShadowLearningEngine.kt # Parallel simulations
+├── data/
+│   ├── BotConfig.kt           # Settings (autoTrade=true)
+│   └── Models.kt              # Paper wallet tracking
+└── ui/
+    └── MainActivity.kt
+```
 
-**Layer 3 - Regime Detection**
-- Market classification: BULL_HOT → DANGER
-- Adjusts position sizing
-
-### 3. Shadow Learning (ShadowLearningEngine.kt)
-- 11 parallel strategy variants
-- Compares to live trading
-- Generates optimization insights
+### Web Dashboard (React + FastAPI)
+```
+/backend/server.py    # WebSocket + REST API
+/frontend/src/
+├── pages/
+│   ├── DashboardPage.jsx  # WebSocket connection
+│   └── LoginPage.jsx
+└── components/dashboard/
+    ├── Header.jsx         # Connection status
+    ├── StatsCards.jsx
+    ├── PnLChart.jsx
+    ├── PositionsTable.jsx
+    ├── TradeHistory.jsx
+    ├── ActivityFeed.jsx
+    └── Watchlist.jsx
+```
 
 ## Configuration (BotConfig.kt)
 
@@ -67,31 +72,42 @@ Paper mode wasn't feeding the learning system because:
 | `autoTrade` | **true** | Autonomous trading |
 | `autoAddNewTokens` | **true** | Auto-scan launches |
 | `paperMode` | true | Simulate first |
-| `fullMarketScanEnabled` | true | Scanner on |
-| `minLiquidityUsd` | 3000 | Min liquidity |
+| `minLiquidityUsd` | 3000 | Min liquidity filter |
 
-## Key Files Changed
+## Self-Learning System
 
-### Build #56 Changes
-- `Models.kt`: Added `paperWalletSol`, `paperWalletInitialized`, `getEffectiveBalance()`
-- `Executor.kt`: Added `onPaperBalanceChange` callback, updates paper balance on trades
-- `BotService.kt`: Syncs paper wallet, uses effective balance for all trading
+### BotBrain - 3 Layers
+1. **Statistical (every 20 trades)**: Win rate analysis, threshold adjustment
+2. **LLM (every 50 trades)**: Groq deep analysis (if key set)
+3. **Regime Detection**: Market classification, position sizing
 
-## 3rd Party APIs
-- **DexScreener**: `/latest/dex/search?q=solana` (works)
-- **Birdeye**: Token data (API key required)
-- **Helius**: RPC (API key required)
-- **Groq**: LLM learning (optional)
+### ShadowLearningEngine
+- 11 parallel strategy variants
+- Compares to live trading
+- Auto-generates optimization insights
+
+## API Endpoints
+
+### REST
+- `POST /api/auth/login` - JWT auth
+- `POST /api/sync/bulk` - Android sync (triggers WebSocket)
+- `GET /api/dashboard` - Stats
+- `GET /api/positions` - Open positions
+- `GET /api/trades` - History
+
+### WebSocket
+- `WS /ws/{token}` - Real-time updates
+- Message types: `init`, `update`, `sync_update`, `heartbeat`
+
+## Dashboard Access
+- **URL**: https://dex-strategy-v7.preview.emergentagent.com
+- **Login**: testuser / test123
 
 ## User Flow
-1. Download APK from Build #56
-2. Install, connect wallet
-3. Bot syncs paper wallet with real balance
+1. Download APK from GitHub Actions Build #56
+2. Install on Android, connect wallet
+3. Paper wallet syncs with real balance
 4. Scanner finds tokens → adds to watchlist
 5. Strategy evaluates → generates signals
 6. Paper trades execute → learning engine fed
-7. BotBrain adjusts → strategy improves
-
-## Dashboard
-- URL: https://dex-strategy-v7.preview.emergentagent.com
-- Login: testuser / test123
+7. Dashboard updates in real-time via WebSocket

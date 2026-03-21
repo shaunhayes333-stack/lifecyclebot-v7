@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, WebSocket, WebSocketDisconnect
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -7,11 +7,13 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone, timedelta
 import hashlib
 import secrets
+import asyncio
+import json
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -531,34 +533,42 @@ async def get_dashboard_stats(username: str = Depends(get_current_user)):
 async def bulk_data_push(data: BulkDataPush, username: str = Depends(get_current_user)):
     results = {}
     
+    # Get user_id for WebSocket notifications
+    user = await db.users.find_one({"username": username})
+    user_id = str(user["_id"]) if user else username
+    
     if data.bot_status:
         doc = data.bot_status.model_dump()
         doc['bot_id'] = "default"
+        doc['user_id'] = user_id
         doc['last_heartbeat'] = datetime.now(timezone.utc).isoformat()
-        await db.bot_status.update_one({"bot_id": "default"}, {"$set": doc}, upsert=True)
+        await db.bot_status.update_one({"user_id": user_id}, {"$set": doc}, upsert=True)
         results['bot_status'] = "updated"
     
     if data.treasury:
         doc = data.treasury.model_dump()
+        doc['user_id'] = user_id
         doc['timestamp'] = doc['timestamp'].isoformat()
         await db.treasury_history.insert_one(doc)
         await db.treasury_current.update_one(
-            {"_type": "current"},
+            {"user_id": user_id},
             {"$set": {
                 "treasury_sol": data.treasury.treasury_sol,
                 "treasury_usd": data.treasury.treasury_usd,
                 "sol_price": data.treasury.sol_price,
-                "updated_at": doc['timestamp']
+                "updated_at": doc['timestamp'],
+                "user_id": user_id
             }},
             upsert=True
         )
         results['treasury'] = "recorded"
     
     if data.positions is not None:
-        await db.positions.delete_many({})
+        await db.positions.delete_many({"user_id": user_id})
         for pos in data.positions:
             doc = pos.model_dump()
             doc['id'] = str(uuid.uuid4())
+            doc['user_id'] = user_id
             doc['entry_time'] = doc['entry_time'].isoformat()
             await db.positions.insert_one(doc)
         results['positions'] = f"synced {len(data.positions)}"
@@ -567,6 +577,7 @@ async def bulk_data_push(data: BulkDataPush, username: str = Depends(get_current
         for trade in data.new_trades:
             doc = trade.model_dump()
             doc['id'] = str(uuid.uuid4())
+            doc['user_id'] = user_id
             doc['entry_time'] = doc['entry_time'].isoformat()
             doc['exit_time'] = doc['exit_time'].isoformat()
             await db.trades.insert_one(doc)
@@ -576,17 +587,26 @@ async def bulk_data_push(data: BulkDataPush, username: str = Depends(get_current
         for log in data.activity_logs:
             doc = log.model_dump()
             doc['id'] = str(uuid.uuid4())
+            doc['user_id'] = user_id
             doc['timestamp'] = datetime.now(timezone.utc).isoformat()
             await db.activity_logs.insert_one(doc)
         results['activity'] = f"logged {len(data.activity_logs)}"
     
     if data.watchlist is not None:
-        await db.watchlist.delete_many({})
+        await db.watchlist.delete_many({"user_id": user_id})
         for token in data.watchlist:
             doc = token.model_dump()
+            doc['user_id'] = user_id
             doc['last_update'] = doc['last_update'].isoformat()
             await db.watchlist.insert_one(doc)
         results['watchlist'] = f"synced {len(data.watchlist)}"
+    
+    # Notify WebSocket clients of the update
+    try:
+        dashboard_data = await get_dashboard_data(user_id)
+        await notify_user_update(user_id, "sync_update", dashboard_data)
+    except Exception as e:
+        logger.warning(f"Failed to notify WebSocket clients: {e}")
     
     return {"status": "success", "results": results}
 
@@ -601,6 +621,135 @@ async def root():
 @api_router.get("/health")
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+# ═══════════════════════════════════════════════════════════════════
+# WebSocket for Real-time Updates
+# ═══════════════════════════════════════════════════════════════════
+
+class ConnectionManager:
+    """Manages WebSocket connections for real-time dashboard updates"""
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}  # user -> [connections]
+    
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = []
+        self.active_connections[user_id].append(websocket)
+        logger.info(f"WebSocket connected for user {user_id}")
+    
+    def disconnect(self, websocket: WebSocket, user_id: str):
+        if user_id in self.active_connections:
+            if websocket in self.active_connections[user_id]:
+                self.active_connections[user_id].remove(websocket)
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+        logger.info(f"WebSocket disconnected for user {user_id}")
+    
+    async def broadcast_to_user(self, user_id: str, message: dict):
+        """Send update to all connections for a specific user"""
+        if user_id in self.active_connections:
+            disconnected = []
+            for connection in self.active_connections[user_id]:
+                try:
+                    await connection.send_json(message)
+                except Exception:
+                    disconnected.append(connection)
+            for conn in disconnected:
+                self.disconnect(conn, user_id)
+
+ws_manager = ConnectionManager()
+
+@app.websocket("/ws/{token}")
+async def websocket_endpoint(websocket: WebSocket, token: str):
+    """WebSocket endpoint for real-time dashboard updates"""
+    # Validate token
+    session = await db.sessions.find_one({"token": token, "expires_at": {"$gt": datetime.now(timezone.utc)}})
+    if not session:
+        await websocket.close(code=4001, reason="Invalid or expired token")
+        return
+    
+    user_id = session["user_id"]
+    await ws_manager.connect(websocket, user_id)
+    
+    try:
+        # Send initial state
+        dashboard_data = await get_dashboard_data(user_id)
+        await websocket.send_json({"type": "init", "data": dashboard_data})
+        
+        # Keep connection alive and handle incoming messages
+        while True:
+            try:
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=30)
+                msg = json.loads(data)
+                
+                if msg.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+                elif msg.get("type") == "refresh":
+                    dashboard_data = await get_dashboard_data(user_id)
+                    await websocket.send_json({"type": "update", "data": dashboard_data})
+                    
+            except asyncio.TimeoutError:
+                # Send heartbeat
+                await websocket.send_json({"type": "heartbeat"})
+                
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, user_id)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        ws_manager.disconnect(websocket, user_id)
+
+async def get_dashboard_data(user_id: str) -> dict:
+    """Get complete dashboard data for a user"""
+    # Get bot status
+    bot_status = await db.bot_status.find_one({"user_id": user_id}, {"_id": 0})
+    
+    # Get positions
+    positions = await db.positions.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+    
+    # Get recent trades
+    trades = await db.trades.find(
+        {"user_id": user_id}
+    ).sort("exit_time", -1).limit(20).to_list(20)
+    for t in trades:
+        t.pop("_id", None)
+    
+    # Get treasury
+    treasury = await db.treasury_current.find_one({"user_id": user_id}, {"_id": 0})
+    
+    # Get watchlist
+    watchlist = await db.watchlist.find({"user_id": user_id}, {"_id": 0}).to_list(50)
+    
+    # Calculate stats
+    all_trades = await db.trades.find({"user_id": user_id}).to_list(1000)
+    wins = [t for t in all_trades if t.get("is_win", t.get("pnl_sol", 0) > 0)]
+    losses = [t for t in all_trades if not t.get("is_win", t.get("pnl_sol", 0) > 0)]
+    
+    total_pnl = sum(t.get("pnl_sol", 0) for t in all_trades)
+    
+    return {
+        "bot_status": bot_status or {"is_running": False},
+        "positions": positions,
+        "trades": trades,
+        "treasury": treasury or {"treasury_sol": 0, "treasury_usd": 0},
+        "watchlist": watchlist,
+        "stats": {
+            "total_trades": len(all_trades),
+            "wins": len(wins),
+            "losses": len(losses),
+            "win_rate": len(wins) / len(all_trades) * 100 if all_trades else 0,
+            "total_pnl_sol": total_pnl,
+            "open_positions": len(positions),
+        }
+    }
+
+async def notify_user_update(user_id: str, update_type: str, data: dict):
+    """Notify user's WebSocket connections of an update"""
+    await ws_manager.broadcast_to_user(user_id, {
+        "type": update_type,
+        "data": data,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
 
 # Include the router in the main app
 app.include_router(api_router)

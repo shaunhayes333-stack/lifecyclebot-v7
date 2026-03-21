@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export default function Header({ username, onLogout, onRefresh, lastRefresh, isLoading, botStatus }) {
+export default function Header({ username, onLogout, onRefresh, lastRefresh, isLoading, botStatus, wsConnected }) {
   const formatTime = (date) => {
     return new Date(date).toLocaleTimeString('en-US', { 
       hour: '2-digit', 
@@ -48,6 +48,13 @@ export default function Header({ username, onLogout, onRefresh, lastRefresh, isL
                 {botStatus.bot_mode}
               </Badge>
             )}
+            {/* WebSocket Connection Status */}
+            <div className="flex items-center gap-1.5">
+              <div className={`w-1.5 h-1.5 rounded-full ${wsConnected ? 'bg-blue-500' : 'bg-zinc-600'}`} />
+              <span className="text-xs text-zinc-500">
+                {wsConnected ? 'Live' : 'Polling'}
+              </span>
+            </div>
           </div>
 
           {/* Right - User & Actions */}
