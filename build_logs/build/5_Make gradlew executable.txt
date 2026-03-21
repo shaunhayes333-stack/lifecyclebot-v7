@@ -1,9 +1,9 @@
-﻿2026-03-21T02:59:14.6012331Z ##[group]Run chmod +x gradlew
-2026-03-21T02:59:14.6012653Z [36;1mchmod +x gradlew[0m
-2026-03-21T02:59:14.6064045Z shell: /usr/bin/bash -e {0}
-2026-03-21T02:59:14.6064301Z env:
-2026-03-21T02:59:14.6064600Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-03-21T02:59:14.6065085Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
-2026-03-21T02:59:14.6065474Z   ANDROID_HOME: /usr/local/lib/android/sdk
-2026-03-21T02:59:14.6065773Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-2026-03-21T02:59:14.6066030Z ##[endgroup]
+﻿2026-03-21T06:01:13.7423914Z ##[group]Run chmod +x gradlew
+2026-03-21T06:01:13.7424276Z [36;1mchmod +x gradlew[0m
+2026-03-21T06:01:13.7455003Z shell: /usr/bin/bash -e {0}
+2026-03-21T06:01:13.7455266Z env:
+2026-03-21T06:01:13.7455533Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-21T06:01:13.7455965Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-21T06:01:13.7456313Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-21T06:01:13.7456597Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-21T06:01:13.7456837Z ##[endgroup]

@@ -1,72 +1,72 @@
-﻿2026-03-21T02:58:49.7168102Z ##[group]Run actions/checkout@v4
-2026-03-21T02:58:49.7168795Z with:
-2026-03-21T02:58:49.7169150Z   repository: shaunhayes333-stack/lifecycle-bot
-2026-03-21T02:58:49.7169703Z   token: ***
-2026-03-21T02:58:49.7169983Z   ssh-strict: true
-2026-03-21T02:58:49.7170263Z   ssh-user: git
-2026-03-21T02:58:49.7170793Z   persist-credentials: true
-2026-03-21T02:58:49.7171117Z   clean: true
-2026-03-21T02:58:49.7171423Z   sparse-checkout-cone-mode: true
-2026-03-21T02:58:49.7171777Z   fetch-depth: 1
-2026-03-21T02:58:49.7172060Z   fetch-tags: false
-2026-03-21T02:58:49.7172357Z   show-progress: true
-2026-03-21T02:58:49.7172661Z   lfs: false
-2026-03-21T02:58:49.7172942Z   submodules: false
-2026-03-21T02:58:49.7173237Z   set-safe-directory: true
-2026-03-21T02:58:49.7173822Z ##[endgroup]
-2026-03-21T02:58:49.8295935Z Syncing repository: shaunhayes333-stack/lifecycle-bot
-2026-03-21T02:58:49.8298454Z ##[group]Getting Git version info
-2026-03-21T02:58:49.8299423Z Working directory is '/home/runner/work/lifecycle-bot/lifecycle-bot'
-2026-03-21T02:58:49.8301205Z [command]/usr/bin/git version
-2026-03-21T02:58:49.8364164Z git version 2.53.0
-2026-03-21T02:58:49.8390277Z ##[endgroup]
-2026-03-21T02:58:49.8412126Z Temporarily overriding HOME='/home/runner/work/_temp/ad304877-ddbf-4258-9ab3-bc18386f5f12' before making global git config changes
-2026-03-21T02:58:49.8413759Z Adding repository directory to the temporary git global config as a safe directory
-2026-03-21T02:58:49.8417512Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lifecycle-bot/lifecycle-bot
-2026-03-21T02:58:49.8458680Z Deleting the contents of '/home/runner/work/lifecycle-bot/lifecycle-bot'
-2026-03-21T02:58:49.8462802Z ##[group]Initializing the repository
-2026-03-21T02:58:49.8467555Z [command]/usr/bin/git init /home/runner/work/lifecycle-bot/lifecycle-bot
-2026-03-21T02:58:49.8607385Z hint: Using 'master' as the name for the initial branch. This default branch name
-2026-03-21T02:58:49.8608955Z hint: will change to "main" in Git 3.0. To configure the initial branch name
-2026-03-21T02:58:49.8610188Z hint: to use in all of your new repositories, which will suppress this warning,
-2026-03-21T02:58:49.8611374Z hint: call:
-2026-03-21T02:58:49.8611900Z hint:
-2026-03-21T02:58:49.8612587Z hint: 	git config --global init.defaultBranch <name>
-2026-03-21T02:58:49.8613395Z hint:
-2026-03-21T02:58:49.8614131Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
-2026-03-21T02:58:49.8615176Z hint: 'development'. The just-created branch can be renamed via this command:
-2026-03-21T02:58:49.8616067Z hint:
-2026-03-21T02:58:49.8616447Z hint: 	git branch -m <name>
-2026-03-21T02:58:49.8616795Z hint:
-2026-03-21T02:58:49.8617276Z hint: Disable this message with "git config set advice.defaultBranchName false"
-2026-03-21T02:58:49.8618124Z Initialized empty Git repository in /home/runner/work/lifecycle-bot/lifecycle-bot/.git/
-2026-03-21T02:58:49.8625657Z [command]/usr/bin/git remote add origin https://github.com/shaunhayes333-stack/lifecycle-bot
-2026-03-21T02:58:49.8706371Z ##[endgroup]
-2026-03-21T02:58:49.8707265Z ##[group]Disabling automatic garbage collection
-2026-03-21T02:58:49.8710878Z [command]/usr/bin/git config --local gc.auto 0
-2026-03-21T02:58:49.8740065Z ##[endgroup]
-2026-03-21T02:58:49.8740851Z ##[group]Setting up auth
-2026-03-21T02:58:49.8747475Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
-2026-03-21T02:58:49.8781022Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
-2026-03-21T02:58:49.9131769Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-03-21T02:58:49.9163775Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
-2026-03-21T02:58:49.9411953Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-03-21T02:58:49.9444943Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
-2026-03-21T02:58:49.9680999Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
-2026-03-21T02:58:49.9717147Z ##[endgroup]
-2026-03-21T02:58:49.9718189Z ##[group]Fetching the repository
-2026-03-21T02:58:49.9726708Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b705f7545bef39f9cf599f90b1db14ca8ab75b53:refs/remotes/origin/main
-2026-03-21T02:58:50.4305091Z From https://github.com/shaunhayes333-stack/lifecycle-bot
-2026-03-21T02:58:50.4305854Z  * [new ref]         b705f7545bef39f9cf599f90b1db14ca8ab75b53 -> origin/main
-2026-03-21T02:58:50.4339001Z ##[endgroup]
-2026-03-21T02:58:50.4339940Z ##[group]Determining the checkout info
-2026-03-21T02:58:50.4342174Z ##[endgroup]
-2026-03-21T02:58:50.4347714Z [command]/usr/bin/git sparse-checkout disable
-2026-03-21T02:58:50.4391019Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
-2026-03-21T02:58:50.4417834Z ##[group]Checking out the ref
-2026-03-21T02:58:50.4422669Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
-2026-03-21T02:58:50.4549074Z Switched to a new branch 'main'
-2026-03-21T02:58:50.4550968Z branch 'main' set up to track 'origin/main'.
-2026-03-21T02:58:50.4558759Z ##[endgroup]
-2026-03-21T02:58:50.4598591Z [command]/usr/bin/git log -1 --format=%H
-2026-03-21T02:58:50.4623097Z b705f7545bef39f9cf599f90b1db14ca8ab75b53
+﻿2026-03-21T06:00:57.0719894Z ##[group]Run actions/checkout@v4
+2026-03-21T06:00:57.0721129Z with:
+2026-03-21T06:00:57.0721905Z   repository: shaunhayes333-stack/lifecycle-bot
+2026-03-21T06:00:57.0723278Z   token: ***
+2026-03-21T06:00:57.0723943Z   ssh-strict: true
+2026-03-21T06:00:57.0724893Z   ssh-user: git
+2026-03-21T06:00:57.0725605Z   persist-credentials: true
+2026-03-21T06:00:57.0726379Z   clean: true
+2026-03-21T06:00:57.0727102Z   sparse-checkout-cone-mode: true
+2026-03-21T06:00:57.0727957Z   fetch-depth: 1
+2026-03-21T06:00:57.0728655Z   fetch-tags: false
+2026-03-21T06:00:57.0729364Z   show-progress: true
+2026-03-21T06:00:57.0730091Z   lfs: false
+2026-03-21T06:00:57.0730742Z   submodules: false
+2026-03-21T06:00:57.0731451Z   set-safe-directory: true
+2026-03-21T06:00:57.0732526Z ##[endgroup]
+2026-03-21T06:00:57.1760677Z Syncing repository: shaunhayes333-stack/lifecycle-bot
+2026-03-21T06:00:57.1763274Z ##[group]Getting Git version info
+2026-03-21T06:00:57.1764819Z Working directory is '/home/runner/work/lifecycle-bot/lifecycle-bot'
+2026-03-21T06:00:57.1766786Z [command]/usr/bin/git version
+2026-03-21T06:00:57.1803273Z git version 2.53.0
+2026-03-21T06:00:57.1826308Z ##[endgroup]
+2026-03-21T06:00:57.1846726Z Temporarily overriding HOME='/home/runner/work/_temp/1e0dbc9f-dc71-4358-9bdb-a8747e03dc96' before making global git config changes
+2026-03-21T06:00:57.1849155Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-21T06:00:57.1851548Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/lifecycle-bot/lifecycle-bot
+2026-03-21T06:00:57.1885294Z Deleting the contents of '/home/runner/work/lifecycle-bot/lifecycle-bot'
+2026-03-21T06:00:57.1888543Z ##[group]Initializing the repository
+2026-03-21T06:00:57.1892360Z [command]/usr/bin/git init /home/runner/work/lifecycle-bot/lifecycle-bot
+2026-03-21T06:00:57.1971311Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-03-21T06:00:57.1973042Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-03-21T06:00:57.1975327Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-03-21T06:00:57.1976651Z hint: call:
+2026-03-21T06:00:57.1977263Z hint:
+2026-03-21T06:00:57.1978546Z hint: 	git config --global init.defaultBranch <name>
+2026-03-21T06:00:57.1979726Z hint:
+2026-03-21T06:00:57.1980673Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-03-21T06:00:57.1982245Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-03-21T06:00:57.1983469Z hint:
+2026-03-21T06:00:57.1984331Z hint: 	git branch -m <name>
+2026-03-21T06:00:57.1985403Z hint:
+2026-03-21T06:00:57.1986438Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-03-21T06:00:57.1988197Z Initialized empty Git repository in /home/runner/work/lifecycle-bot/lifecycle-bot/.git/
+2026-03-21T06:00:57.1991430Z [command]/usr/bin/git remote add origin https://github.com/shaunhayes333-stack/lifecycle-bot
+2026-03-21T06:00:57.2014718Z ##[endgroup]
+2026-03-21T06:00:57.2015955Z ##[group]Disabling automatic garbage collection
+2026-03-21T06:00:57.2018556Z [command]/usr/bin/git config --local gc.auto 0
+2026-03-21T06:00:57.2042154Z ##[endgroup]
+2026-03-21T06:00:57.2043312Z ##[group]Setting up auth
+2026-03-21T06:00:57.2048530Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-21T06:00:57.2072886Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-21T06:00:57.2341656Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-21T06:00:57.2369966Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-21T06:00:57.2543304Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-21T06:00:57.2571452Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-21T06:00:57.2749054Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-03-21T06:00:57.2778454Z ##[endgroup]
+2026-03-21T06:00:57.2779809Z ##[group]Fetching the repository
+2026-03-21T06:00:57.2788155Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +15c5755210e9eb4cd7cc6ae7e62d08eacd3a0c44:refs/remotes/origin/main
+2026-03-21T06:00:57.7463270Z From https://github.com/shaunhayes333-stack/lifecycle-bot
+2026-03-21T06:00:57.7464227Z  * [new ref]         15c5755210e9eb4cd7cc6ae7e62d08eacd3a0c44 -> origin/main
+2026-03-21T06:00:57.7490436Z ##[endgroup]
+2026-03-21T06:00:57.7491044Z ##[group]Determining the checkout info
+2026-03-21T06:00:57.7493216Z ##[endgroup]
+2026-03-21T06:00:57.7498124Z [command]/usr/bin/git sparse-checkout disable
+2026-03-21T06:00:57.7531025Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-03-21T06:00:57.7552573Z ##[group]Checking out the ref
+2026-03-21T06:00:57.7557185Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-03-21T06:00:57.7647921Z Switched to a new branch 'main'
+2026-03-21T06:00:57.7648755Z branch 'main' set up to track 'origin/main'.
+2026-03-21T06:00:57.7655509Z ##[endgroup]
+2026-03-21T06:00:57.7683019Z [command]/usr/bin/git log -1 --format=%H
+2026-03-21T06:00:57.7702128Z 15c5755210e9eb4cd7cc6ae7e62d08eacd3a0c44
