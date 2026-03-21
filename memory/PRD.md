@@ -7,113 +7,91 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 - **Build #53**: SUCCESS - Fixed compilation errors
 - **Build #54**: SUCCESS - Enabled autonomous mode
 - **Build #55**: SUCCESS - Fixed DexScreener API endpoints
+- **Build #56**: SUCCESS - Paper mode now uses wallet balance
 
-## SCANNER FIX (Build #55)
+## LATEST FIX - Paper Trading with Real Balance (Build #56)
 
 ### Problem
-The scanner was using broken DexScreener API endpoints:
-```
-https://api.dexscreener.com/latest/dex/pairs/solana/raydium
-```
-This endpoint returns `{"pairs": null}` - empty data.
+Paper mode wasn't feeding the learning system because:
+1. Without wallet connection, `walletSol` was 0
+2. Position sizing returned 0 (no balance = no trades)
+3. Learning engine got no data
 
 ### Solution
-Changed to use the search API which works:
-```
-https://api.dexscreener.com/latest/dex/search?q=solana  (returns 30 pairs)
-https://api.dexscreener.com/latest/dex/search?q=pump     (finds pump.fun tokens)
-```
+- Added `paperWalletSol` to track simulated balance
+- Paper wallet syncs with real wallet balance on first connection
+- Paper buys deduct from paper balance
+- Paper sells add proceeds back
+- All trade decisions now use effective balance
 
-### Files Changed
-- `SolanaMarketScanner.kt`:
-  - `runTestScan()` - Fixed to use search API
-  - `scanDexGainers()` - Fixed to use search API  
-  - `scanPumpGraduates()` - Fixed to use search API
+### How Learning Works Now
+1. **Paper buy** → Deducts SOL from paper wallet
+2. **Paper sell** → Adds proceeds, calculates P&L
+3. **BotBrain** receives trade data:
+   - Bad observations for losing trades
+   - Good observations for winning trades
+4. **Every 20 trades** → Statistical learning adjusts thresholds
+5. **Every 50 trades** → LLM analysis (if Groq key set)
 
 ## Core Functionality - AUTONOMOUS OPERATION
 
-The bot is designed to be fully autonomous:
-
 ### 1. Scanner (SolanaMarketScanner.kt)
-- Scans DexScreener (search API), Birdeye, Pump.fun for new tokens
-- Filters by liquidity (>$3K), volume, age
-- Auto-adds promising tokens to watchlist
-- Runs every 5 seconds by default
+- Uses DexScreener search API (`/latest/dex/search?q=solana`)
+- Filters: chainId=solana, >$3K liquidity
+- Detects pump.fun tokens and graduates
+- Auto-adds to watchlist
 
-### 2. Self-Learning Engine (BotBrain.kt) - 3 Layers
+### 2. Self-Learning Engine (BotBrain.kt)
+**Layer 1 - Statistical (every 20 trades)**
+- Win rate analysis per signal combo
+- Auto-adjusts thresholds
+- Bad behaviour registry
 
-**Layer 1 - Statistical Learning (every 20 trades)**
-- Analyzes win rates per signal combination
-- Adjusts entry/exit thresholds automatically
-- Tracks phase performance (pumping, range, cooling)
-- Records bad patterns to avoid
+**Layer 2 - LLM (every 50 trades)**
+- Groq deep analysis
+- Pattern recognition
 
-**Layer 2 - LLM Analysis (every 50 trades)**
-- Uses Groq LLM for deep pattern recognition
-- Identifies what's working vs failing
-- Suggests parameter adjustments
-- Requires Groq API key
+**Layer 3 - Regime Detection**
+- Market classification: BULL_HOT → DANGER
+- Adjusts position sizing
 
-**Layer 3 - Regime Detection (real-time)**
-- Classifies market: BULL_HOT, BULL, NEUTRAL, BEAR, BEAR_COLD, DANGER
-- Adjusts position sizing based on conditions
+### 3. Shadow Learning (ShadowLearningEngine.kt)
+- 11 parallel strategy variants
+- Compares to live trading
+- Generates optimization insights
 
-### 3. Shadow Learning Engine (ShadowLearningEngine.kt)
-- Runs parallel simulated trades with different parameters
-- Tests 11 strategy variants simultaneously
-- Compares to live trading, generates insights
-
-## Current Configuration (BotConfig.kt)
+## Configuration (BotConfig.kt)
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| **`autoTrade`** | **true** | Bot trades automatically |
-| **`autoAddNewTokens`** | **true** | Auto-scan new launches |
-| `paperMode` | true | Simulate without real money |
-| `fullMarketScanEnabled` | true | Scanner active |
-| `scanIntervalSecs` | 5 | Scan frequency |
-| `minLiquidityUsd` | 3000 | Min liquidity filter |
+| `autoTrade` | **true** | Autonomous trading |
+| `autoAddNewTokens` | **true** | Auto-scan launches |
+| `paperMode` | true | Simulate first |
+| `fullMarketScanEnabled` | true | Scanner on |
+| `minLiquidityUsd` | 3000 | Min liquidity |
 
-## Architecture
+## Key Files Changed
 
-### Mobile App (Android/Kotlin)
-```
-/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/
-├── engine/
-│   ├── BotService.kt          # Main loop
-│   ├── SolanaMarketScanner.kt # Token discovery (FIXED)
-│   ├── LifecycleStrategy.kt   # Trading signals
-│   ├── Executor.kt            # Trade execution
-│   ├── BotBrain.kt            # Self-learning
-│   └── ShadowLearningEngine.kt # Parallel simulations
-├── network/
-│   ├── DexscreenerApi.kt
-│   └── BirdeyeApi.kt
-└── ui/
-    └── MainActivity.kt
-```
+### Build #56 Changes
+- `Models.kt`: Added `paperWalletSol`, `paperWalletInitialized`, `getEffectiveBalance()`
+- `Executor.kt`: Added `onPaperBalanceChange` callback, updates paper balance on trades
+- `BotService.kt`: Syncs paper wallet, uses effective balance for all trading
 
-### Web Dashboard
+## 3rd Party APIs
+- **DexScreener**: `/latest/dex/search?q=solana` (works)
+- **Birdeye**: Token data (API key required)
+- **Helius**: RPC (API key required)
+- **Groq**: LLM learning (optional)
+
+## User Flow
+1. Download APK from Build #56
+2. Install, connect wallet
+3. Bot syncs paper wallet with real balance
+4. Scanner finds tokens → adds to watchlist
+5. Strategy evaluates → generates signals
+6. Paper trades execute → learning engine fed
+7. BotBrain adjusts → strategy improves
+
+## Dashboard
 - URL: https://dex-strategy-v7.preview.emergentagent.com
 - Login: testuser / test123
-
-## 3rd Party APIs Used
-- **DexScreener** - Token search (FREE, `/latest/dex/search?q=...`)
-- **Birdeye** - Token data (API key required)
-- **Helius** - RPC (API key required)
-- **Groq** - LLM learning (optional)
-- **Jupiter** - DEX aggregator for swaps
-
-## User Setup
-1. Download APK from GitHub Actions (Build #55)
-2. Install on Android
-3. Connect Solana wallet
-4. (Optional) Add API keys: Helius, Birdeye, Groq
-5. Start bot - it will scan, learn, and trade automatically
-
-## What the Scanner Should Now Find
-With the fixed API:
-- Tokens with >$3K liquidity on Solana
-- New pump.fun launches
-- Pump.fun graduates (migrated to Raydium)
-- Trending tokens with high volume
