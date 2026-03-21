@@ -26,7 +26,9 @@ class BotService : Service() {
 
     companion object {
         @Volatile private var _instance: java.lang.ref.WeakReference<BotService>? = null
-        var instance: BotService? get() = _instance?.get() set(v) { _instance = if (v != null) java.lang.ref.WeakReference(v) else null }
+        var instance: BotService?
+            get() = _instance?.get()
+            set(value) { _instance = if (value != null) java.lang.ref.WeakReference(value) else null }
         const val ACTION_START  = "com.lifecyclebot.START"
         const val ACTION_STOP   = "com.lifecyclebot.STOP"
         const val CHANNEL_ID    = "bot_running"
@@ -44,7 +46,7 @@ class BotService : Service() {
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var wallet: SolanaWallet? = null
     private lateinit var strategy: LifecycleStrategy
-    private lateinit var executor: Executor
+    internal lateinit var executor: Executor
     private lateinit var sentimentEngine: SentimentEngine
     private lateinit var safetyChecker: TokenSafetyChecker
     private lateinit var securityGuard: SecurityGuard
@@ -160,88 +162,123 @@ class BotService : Service() {
 
     fun startBot() {
         if (status.running) return
-        status.running = true
-        startForeground(NOTIF_ID, buildRunningNotif())
+        
+        try {
+            addLog("🚀 Starting bot...")
+            status.running = true
+            startForeground(NOTIF_ID, buildRunningNotif())
+            addLog("✓ Foreground service started")
 
-        // Register network callback to reconnect WebSocket after connectivity loss
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val req = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
-        networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                if (status.running) {
-                    addLog("📡 Network restored — reconnecting streams")
-                    scope.launch {
-                        delay(2_000)  // brief delay to let connection stabilise
-                        orchestrator?.reconnectStreams()
+            // Register network callback to reconnect WebSocket after connectivity loss
+            try {
+                val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                val req = NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
+                networkCallback = object : ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: Network) {
+                        if (status.running) {
+                            addLog("📡 Network restored — reconnecting streams")
+                            scope.launch {
+                                delay(2_000)
+                                try {
+                                    orchestrator?.reconnectStreams()
+                                } catch (e: Exception) {
+                                    addLog("Stream reconnect error: ${e.message}")
+                                }
+                            }
+                        }
+                    }
+                    override fun onLost(network: Network) {
+                        if (status.running) addLog("📡 Network lost — WebSocket will reconnect on restore")
                     }
                 }
+                cm.registerNetworkCallback(req, networkCallback!!)
+                addLog("✓ Network callback registered")
+            } catch (e: Exception) {
+                addLog("⚠️ Network callback failed: ${e.message}")
             }
-            override fun onLost(network: Network) {
-                if (status.running) addLog("📡 Network lost — WebSocket will reconnect on restore")
-            }
-        }
-        cm.registerNetworkCallback(req, networkCallback!!)
 
-        val cfg = ConfigStore.load(applicationContext)
-        wallet = if (!cfg.paperMode && cfg.privateKeyB58.isNotBlank()) {
-            val connected = walletManager.connect(cfg.privateKeyB58, cfg.rpcUrl)
-            if (connected) {
-                addLog("Wallet connected: ${walletManager.state.value.shortKey}")
-                walletManager.getWallet()
+            val cfg = ConfigStore.load(applicationContext)
+            addLog("✓ Config loaded: paperMode=${cfg.paperMode}")
+            
+            // Determine best RPC URL - prefer Helius if key available
+            val rpcUrl = if (cfg.heliusApiKey.isNotBlank()) {
+                "https://mainnet.helius-rpc.com/?api-key=${cfg.heliusApiKey}"
             } else {
-                addLog("Wallet error: ${walletManager.state.value.errorMessage} — paper mode")
+                cfg.rpcUrl
+            }
+            
+            wallet = if (!cfg.paperMode && cfg.privateKeyB58.isNotBlank()) {
+                addLog("Attempting wallet connection to ${rpcUrl.take(40)}...")
+                try {
+                    val connected = walletManager.connect(cfg.privateKeyB58, rpcUrl)
+                    if (connected) {
+                        addLog("✓ Wallet connected: ${walletManager.state.value.shortKey}")
+                        walletManager.getWallet()
+                    } else {
+                        addLog("⚠️ Wallet error: ${walletManager.state.value.errorMessage} — using paper mode")
+                        null
+                    }
+                } catch (e: Exception) {
+                    addLog("⚠️ Wallet connection failed: ${e.message} — using paper mode")
+                    null
+                }
+            } else {
+                addLog("Paper mode enabled or no key provided")
+                walletManager.disconnect()
                 null
             }
-        } else {
-            walletManager.disconnect()
-            null
-        }
 
-        // Run startup reconciliation to catch any state mismatch
-        // from previous crash, manual sells, or failed transactions
-        val liveWallet = wallet
-        if (liveWallet != null) {
-            scope.launch {
-                try {
-                    val reconciler = StartupReconciler(
-                        wallet  = liveWallet,
-                        status  = status,
-                        onLog   = { msg -> addLog(msg) },
-                        onAlert = { title, body ->
-                            sendTradeNotif(title, body,
-                                NotificationHistory.NotifEntry.NotifType.INFO)
-                        }
-                    )
-                    reconciler.reconcile()
-                } catch (e: Exception) {
-                    addLog("Reconciliation error: ${e.message}")
+            // Run startup reconciliation to catch any state mismatch
+            // from previous crash, manual sells, or failed transactions
+            val liveWallet = wallet
+            if (liveWallet != null) {
+                scope.launch {
+                    try {
+                        val reconciler = StartupReconciler(
+                            wallet  = liveWallet,
+                            status  = status,
+                            onLog   = { msg -> addLog(msg) },
+                            onAlert = { title, body ->
+                                sendTradeNotif(title, body,
+                                    NotificationHistory.NotifEntry.NotifType.INFO)
+                            }
+                        )
+                        reconciler.reconcile()
+                    } catch (e: Exception) {
+                        addLog("Reconciliation error: ${e.message}")
+                    }
                 }
-            }
-        } else {
+            } else {
             addLog("Paper mode — skipping on-chain reconciliation")
         }
 
+        addLog("✓ Starting bot loop...")
         loopJob = scope.launch { botLoop() }
+        
         // Start data orchestrator (real-time streams)
-        orchestrator = DataOrchestrator(
-            cfg                = { ConfigStore.load(applicationContext) },
-            status             = status,
-            onLog              = ::addLog,
-            onNotify           = { title, body, type -> sendTradeNotif(title, body, type) },
-            onNewTokenDetected = { mint, symbol, name ->
-                // Auto-add new Pump.fun launches to watchlist if configured
-                val c = ConfigStore.load(applicationContext)
-                if (c.autoAddNewTokens) {
-                    val wl = c.watchlist.toMutableList()
-                    if (mint !in wl && wl.size < 20) {
-                        wl.add(mint)
-                        ConfigStore.save(applicationContext, c.copy(watchlist = wl))
-                        addLog("Auto-added new token: $symbol ($mint)", mint)
-                    soundManager.playNewToken()
-                    }
-                }
-            },
+        addLog("✓ Creating data orchestrator...")
+        try {
+            orchestrator = DataOrchestrator(
+                cfg                = { ConfigStore.load(applicationContext) },
+                status             = status,
+                onLog              = ::addLog,
+                onNotify           = { title, body, type -> sendTradeNotif(title, body, type) },
+                onNewTokenDetected = { mint, symbol, name ->
+                    // Auto-add new Pump.fun launches to watchlist if configured
+                    try {
+                        val c = ConfigStore.load(applicationContext)
+                        if (c.autoAddNewTokens) {
+                            val wl = c.watchlist.toMutableList()
+                            if (mint !in wl && wl.size < 20) {
+                                wl.add(mint)
+                                ConfigStore.save(applicationContext, c.copy(watchlist = wl))
+                                addLog("Auto-added new token: $symbol ($mint)", mint)
+                                soundManager.playNewToken()
+                            }
+                        }
+                    } catch (_: Exception) {}
+                },
             onDevSell = { mint, pct ->
                 val ts = status.tokens[mint]
                 if (ts != null && ts.position.isOpen) {
@@ -267,37 +304,47 @@ class BotService : Service() {
             }
         )
         orchestrator?.start()
+        addLog("✓ Data orchestrator started")
+        } catch (e: Exception) {
+            addLog("⚠️ Orchestrator error: ${e.message}")
+        }
 
         // Start full Solana market scanner
         val scanCfg = ConfigStore.load(applicationContext)
         if (scanCfg.fullMarketScanEnabled) {
-            marketScanner = SolanaMarketScanner(
-                cfg          = { ConfigStore.load(applicationContext) },
-                onTokenFound = { mint, symbol, name, source, score ->
-                        val wl = cfg.watchlist.toMutableList()
-                    if (mint !in wl && !TokenBlacklist.isBlocked(mint) && wl.size < cfg.maxWatchlistSize) {
-                        wl.add(mint)
-                        ConfigStore.save(applicationContext, cfg.copy(watchlist = wl))
-                        addLog("📡 ${source.name}: auto-added ${symbol} (score ${score.toInt()})", mint)
-                        soundManager.playNewToken()
-                        // Seed candle history immediately
-                        scope.launch {
-                            val ts = status.tokens.getOrPut(mint) {
-                                com.lifecyclebot.data.TokenState(
-                            mint=mint, symbol=symbol, name=name,
-                            // Default 1M — DataOrchestrator.seedCandleHistory
-                            // will update this once it knows the actual history depth
-                            candleTimeframeMinutes = 1
-                        )
+            try {
+                marketScanner = SolanaMarketScanner(
+                    cfg          = { ConfigStore.load(applicationContext) },
+                    onTokenFound = { mint, symbol, name, source, score ->
+                        try {
+                            val wl = cfg.watchlist.toMutableList()
+                            if (mint !in wl && !TokenBlacklist.isBlocked(mint) && wl.size < cfg.maxWatchlistSize) {
+                                wl.add(mint)
+                                ConfigStore.save(applicationContext, cfg.copy(watchlist = wl))
+                                addLog("📡 ${source.name}: auto-added ${symbol} (score ${score.toInt()})", mint)
+                                soundManager.playNewToken()
+                                // Seed candle history immediately
+                                scope.launch {
+                                    try {
+                                        val ts = status.tokens.getOrPut(mint) {
+                                            com.lifecyclebot.data.TokenState(
+                                                mint=mint, symbol=symbol, name=name,
+                                                candleTimeframeMinutes = 1
+                                            )
+                                        }
+                                        orchestrator?.onTokenAdded(mint, symbol)
+                                    } catch (_: Exception) {}
+                                }
                             }
-                            orchestrator?.onTokenAdded(mint, symbol)
-                        }
-                    }
-                },
-                onLog = ::addLog,
-            )
-            marketScanner?.start()
-            addLog("🌐 Full Solana market scanner active — ${scanCfg.maxWatchlistSize} token watchlist")
+                        } catch (_: Exception) {}
+                    },
+                    onLog = ::addLog,
+                )
+                marketScanner?.start()
+                addLog("🌐 Full Solana market scanner active — ${scanCfg.maxWatchlistSize} token watchlist")
+            } catch (e: Exception) {
+                addLog("⚠️ Market scanner error: ${e.message}")
+            }
         }
 
         // Seed candle history for all watchlist tokens
@@ -313,6 +360,14 @@ class BotService : Service() {
         val restored = SessionStore.restore(applicationContext)
         if (!restored) SmartSizer.resetSession()
         TreasuryManager.restore(applicationContext)   // load persisted treasury
+        
+        // Safety: if wallet is very low but treasury claims to have locked funds,
+        // something is wrong - reset treasury to allow trading
+        val currentBalance = walletManager.state.value.solBalance
+        if (currentBalance < 0.1 && TreasuryManager.treasurySol > 0.01) {
+            addLog("⚠️ Treasury state inconsistent - resetting to allow trading")
+            TreasuryManager.emergencyUnlock(applicationContext)
+        }
         orchestrator?.startMtfRefresh()
 
         // Self-learning brain
@@ -336,6 +391,16 @@ class BotService : Service() {
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "lifecyclebot:trading")
             .also { it.acquire(12 * 60 * 60 * 1000L) }  // max 12h, released on stopBot
         addLog("Bot started — paper=${cfg.paperMode} auto=${cfg.autoTrade} sounds=${cfg.soundEnabled}")
+        
+        } catch (e: Exception) {
+            // Catch any crash and log it, don't let the service crash
+            addLog("❌ Bot start error: ${e.javaClass.simpleName}: ${e.message}")
+            e.printStackTrace()
+            status.running = false
+            try {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+            } catch (_: Exception) {}
+        }
     }
 
     fun stopBot() {
@@ -366,6 +431,7 @@ class BotService : Service() {
 
     private suspend fun botLoop() {
         while (status.running) {
+          try {
             val cfg       = ConfigStore.load(applicationContext)
             val watchlist = cfg.watchlist.toMutableList()
             if (cfg.activeToken.isNotBlank() && cfg.activeToken !in watchlist)
@@ -450,7 +516,7 @@ class BotService : Service() {
                                 pairUrl    = pair.url,
                             )
                         }
-                        val ts = status.tokens[mint]!!
+                        val ts = status.tokens[mint] ?: return@launch
                         ts.lastPrice        = pair.candle.priceUsd
                         ts.lastMcap         = pair.candle.marketCap
                         ts.lastLiquidityUsd = pair.liquidity
@@ -472,7 +538,7 @@ class BotService : Service() {
                         }
                     }
 
-                    val ts     = status.tokens[mint]!!
+                    val ts = status.tokens[mint] ?: return@launch
                     // ── Safety check (cached 10 min) ──────────────────────
                 val safetyAge = System.currentTimeMillis() - ts.lastSafetyCheck
                 if (safetyAge > 10 * 60_000L) {
@@ -508,6 +574,15 @@ class BotService : Service() {
                 }
 
                 lastSuccessfulPollMs = System.currentTimeMillis()
+                
+                // Auto-mode evaluation - must come before strategy.evaluate
+                val curveState = BondingCurveTracker.evaluate(ts)
+                val whaleState = WhaleDetector.evaluate(mint, ts)
+                val trendRank  = try { null } catch (_: Exception) { null } // from CoinGecko cache
+                val modeConf   = if (cfg.autoMode) {
+                    autoMode.evaluate(ts, whaleState.whaleScore, trendRank, curveState.stage)
+                } else null
+                
                 val modeConfForEval = if (cfg.autoMode) modeConf else null
                 val result = strategy.evaluate(ts, modeConfForEval)
 
@@ -544,19 +619,11 @@ class BotService : Service() {
                         executor.maybeAct(ts, "EXIT", 0.0, status.walletSol, wallet,
                             lastSuccessfulPollMs, status.openPositionCount, status.totalExposureSol)
                     }
-                    continue
+                    return@launch
                 }
 
-                // Auto-mode evaluation
-                val curveState = BondingCurveTracker.evaluate(ts)
-                val whaleState = WhaleDetector.evaluate(mint, ts)
-                val trendRank  = try { null } catch (_: Exception) { null } // from CoinGecko cache
-                val modeConf   = if (cfg.autoMode) {
-                    autoMode.evaluate(ts, whaleState.whaleScore, trendRank, curveState.stage)
-                } else null
-
                 // In PAUSED mode: no new entries (existing positions still managed)
-                if (modeConf?.mode == AutoModeEngine.BotMode.PAUSED && !ts.position.isOpen) continue
+                if (modeConf?.mode == AutoModeEngine.BotMode.PAUSED && !ts.position.isOpen) return@launch
 
                 // Trade on ALL watchlist tokens simultaneously
                 val cbState = securityGuard.getCircuitBreakerState()
@@ -611,6 +678,11 @@ class BotService : Service() {
                 try { SessionStore.save(applicationContext) } catch (_: Exception) {}
             }
             delay(cfg.pollSeconds * 1000L)
+          } catch (e: Exception) {
+            // Catch any crash in the main loop and log it
+            addLog("❌ Loop error: ${e.message}")
+            delay(5000) // wait 5 seconds before retrying
+          }
         }
     }
 
@@ -694,3 +766,6 @@ class BotService : Service() {
             .build()
     }
 }
+
+// Extension function for formatting doubles
+private fun Double.fmt(decimals: Int = 4) = "%.${decimals}f".format(this)
