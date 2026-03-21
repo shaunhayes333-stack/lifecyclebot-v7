@@ -134,6 +134,7 @@ class SolanaMarketScanner(
                     async { scanDexGainers() },
                     async { scanDexBoosted() },
                     async { scanPumpGraduates() },
+                    async { scanPumpFunNew() },       // NEW: Direct pump.fun API
                     async { scanBirdeyeTrending() },
                     async { scanCoinGeckoTrending() },
                     async { scanRaydiumNewPools() },
@@ -378,6 +379,72 @@ class SolanaMarketScanner(
                 if (passesFilter(token)) emit(token)
             }
             delay(500)
+        }
+    }
+
+    // ── Source 9: Pump.fun new launches (direct API) ──────────────────
+
+    private suspend fun scanPumpFunNew() {
+        if (!cfg().scanPumpFunNew) return
+        // Pump.fun frontend API for recent coins
+        val url = "https://frontend-api.pump.fun/coins?offset=0&limit=50&sort=created_timestamp&order=DESC&includeNsfw=false"
+        val body = get(url) ?: return
+        try {
+            val arr = JSONArray(body)
+            var found = 0
+            onLog("📡 Pump.fun: checking ${arr.length()} new tokens")
+            for (i in 0 until minOf(arr.length(), 50)) {
+                if (found >= 15) break  // limit per scan
+                val item = arr.optJSONObject(i) ?: continue
+                val mint = item.optString("mint", "")
+                if (mint.isBlank() || mint.length < 32 || isSeen(mint)) continue
+                
+                // Get bonding curve progress (higher = closer to graduation)
+                val bondingProgress = item.optDouble("bonding_curve_progress", 0.0) // 0.0 to 1.0
+                val mcap = item.optDouble("usd_market_cap", 0.0)
+                val name = item.optString("name", "")
+                val symbol = item.optString("symbol", "")
+                
+                // Skip very new tokens with no mcap data
+                if (mcap < 1000) continue
+                
+                // Calculate a score based on bonding progress and mcap
+                val progressScore = bondingProgress * 40  // max 40 points for near-graduation
+                val mcapScore = when {
+                    mcap > 100_000 -> 30.0
+                    mcap > 50_000  -> 25.0
+                    mcap > 20_000  -> 20.0
+                    mcap > 10_000  -> 15.0
+                    mcap > 5_000   -> 10.0
+                    else           -> 5.0
+                }
+                val baseScore = progressScore + mcapScore
+                
+                val token = ScannedToken(
+                    mint               = mint,
+                    symbol             = symbol.ifBlank { mint.take(6) },
+                    name               = name.ifBlank { "Pump.fun Token" },
+                    source             = TokenSource.PUMP_FUN_NEW,
+                    liquidityUsd       = mcap * 0.1,  // estimate liquidity from mcap
+                    volumeH1           = 0.0,  // unknown
+                    mcapUsd            = mcap,
+                    pairCreatedHoursAgo = 0.5,  // assume recent
+                    dexId              = "pump.fun",
+                    priceChangeH1      = 0.0,
+                    txCountH1          = 0,
+                    score              = baseScore,
+                )
+                
+                if (passesFilter(token)) {
+                    emit(token)
+                    found++
+                }
+            }
+            if (found > 0) {
+                onLog("✨ Pump.fun: found $found new tokens")
+            }
+        } catch (e: Exception) {
+            onLog("Pump.fun scan error: ${e.message?.take(50)}")
         }
     }
 

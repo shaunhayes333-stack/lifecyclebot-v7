@@ -83,7 +83,10 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 | `autoTrade` | **true** | Autonomous trading enabled by default |
 | `autoAddNewTokens` | **true** | Auto-scan pump.fun launches |
 | `paperMode` | true | Simulate first (disable for live) |
-| `minLiquidityUsd` | 8000 | Min liquidity filter |
+| `minLiquidityUsd` | **5000** | Min liquidity filter (lowered from 8000) |
+| `minDiscoveryScore` | **30** | Min score for watchlist (lowered from 35) |
+| `scanIntervalSecs` | **30** | Scan interval (lowered from 45) |
+| `maxWatchlistSize` | **75** | Max tracked tokens (raised from 50) |
 | `soundEnabled` | true | Play audio feedback on trades |
 
 ## WebSocket Real-Time Updates (Backend + Frontend)
@@ -158,6 +161,35 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 - **START_STICKY**: Service restarts automatically if killed by system
 - **onTaskRemoved**: Schedules restart via AlarmManager when app swiped from recents
 - **Lifecycle Logging**: Full visibility into onStartCommand, onDestroy, onTaskRemoved events
+
+## Scanner Improvements (Dec 2025)
+
+### New Data Sources
+- **Source 9: Pump.fun Direct API** - Scans `frontend-api.pump.fun` for new launches
+  - Gets bonding curve progress (tokens near graduation get higher scores)
+  - Filters by mcap > $1000 to avoid dead tokens
+  - Up to 15 tokens per scan cycle
+
+### Lowered Filter Thresholds
+| Setting | Old Value | New Value | Reason |
+|---------|-----------|-----------|--------|
+| `minLiquidityUsd` | $8,000 | $5,000 | Catch earlier opportunities |
+| `minVolLiqRatio` | 0.30 | 0.20 | Allow more tokens through |
+| `minDiscoveryScore` | 35 | 30 | Lower barrier for watchlist |
+| `scanMinMcapUsd` | $5,000 | $3,000 | Earlier entry on pump.fun tokens |
+| `scanIntervalSecs` | 45 | 30 | Faster scanning |
+| `maxWatchlistSize` | 50 | 75 | Track more tokens |
+
+### Scanner Sources (9 total)
+1. DexScreener Trending
+2. DexScreener Gainers
+3. DexScreener Boosted
+4. Pump.fun Graduates (Raydium migrations)
+5. **Pump.fun New Launches** (NEW)
+6. Birdeye Trending (needs API key)
+7. CoinGecko Trending
+8. Raydium New Pools
+9. Narrative Scanning (keyword-based)
 
 ## Scanner Debugging
 Filter rejection logs now show exact reason:
