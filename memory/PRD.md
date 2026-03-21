@@ -98,8 +98,8 @@ Build a sophisticated Solana trading bot Android application with a web dashboar
 - Telegram Bot Token + Chat ID
 
 ## Live URLs
-- **Dashboard:** https://lifecycle-bot-build.preview.emergentagent.com
-- **API:** https://lifecycle-bot-build.preview.emergentagent.com/api
+- **Dashboard:** https://solana-bot-debug.preview.emergentagent.com
+- **API:** https://solana-bot-debug.preview.emergentagent.com/api
 - **GitHub Repo:** https://github.com/shaunhayes333-stack/lifecycle-bot
 
 ## Test Credentials
