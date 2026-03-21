@@ -258,20 +258,61 @@ class SolanaMarketScanner(
 
     private suspend fun scanBirdeyeTrending() {
         val c = cfg()
-        if (c.birdeyeApiKey.isBlank()) return  // needs key
+        if (c.birdeyeApiKey.isBlank()) {
+            // Log once per session that Birdeye needs API key
+            return
+        }
+        
+        // Birdeye trending endpoint - returns top trending Solana tokens
         val url = "https://public-api.birdeye.so/defi/token_trending?sort_by=rank&sort_type=asc&offset=0&limit=20"
-        val body = get(url, apiKey = c.birdeyeApiKey) ?: return
+        val body = get(url, apiKey = c.birdeyeApiKey) ?: run {
+            onLog("⚠️ Birdeye: API request failed (check API key)")
+            return
+        }
+        
         try {
-            val items = JSONObject(body).optJSONObject("data")?.optJSONArray("items") ?: return
+            val json = JSONObject(body)
+            
+            // Check for error response
+            if (!json.optBoolean("success", true)) {
+                onLog("⚠️ Birdeye: ${json.optString("message", "API error")}")
+                return
+            }
+            
+            val data = json.optJSONObject("data")
+            val items = data?.optJSONArray("tokens") ?: data?.optJSONArray("items")
+            
+            if (items == null) {
+                onLog("⚠️ Birdeye: No tokens in response")
+                return
+            }
+            
+            var found = 0
+            onLog("📡 Birdeye: checking ${items.length()} trending tokens")
+            
             for (i in 0 until minOf(items.length(), 20)) {
                 val item = items.optJSONObject(i) ?: continue
-                val mint = item.optString("address","")
+                val mint = item.optString("address", "")
                 if (mint.isBlank() || isSeen(mint)) continue
+                
+                // Get additional data from DexScreener for complete token info
                 val pair = withContext(Dispatchers.IO) { dex.getBestPair(mint) } ?: continue
-                val token = buildScannedToken(mint, pair, TokenSource.BIRDEYE_TRENDING) ?: return@launch
-                if (passesFilter(token)) emit(token)
+                val token = buildScannedToken(mint, pair, TokenSource.BIRDEYE_TRENDING) ?: continue
+                
+                // Birdeye trending tokens get a score boost
+                val boostedToken = token.copy(score = (token.score + 15.0).coerceAtMost(100.0))
+                if (passesFilter(boostedToken)) {
+                    emit(boostedToken)
+                    found++
+                }
             }
-        } catch (_: Exception) {}
+            
+            if (found > 0) {
+                onLog("✨ Birdeye: found $found trending tokens")
+            }
+        } catch (e: Exception) {
+            onLog("Birdeye error: ${e.message?.take(50)}")
+        }
     }
 
     // ── Source 6: CoinGecko trending ─────────────────────────────────
