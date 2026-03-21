@@ -1,0 +1,107 @@
+﻿2026-03-21T02:59:14.6197479Z ##[group]Run ./gradlew assembleDebug --no-daemon
+2026-03-21T02:59:14.6197849Z [36;1m./gradlew assembleDebug --no-daemon[0m
+2026-03-21T02:59:14.6244406Z shell: /usr/bin/bash -e {0}
+2026-03-21T02:59:14.6244637Z env:
+2026-03-21T02:59:14.6244921Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-21T02:59:14.6245384Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.18-8/x64
+2026-03-21T02:59:14.6245766Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-03-21T02:59:14.6246038Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-03-21T02:59:14.6246289Z ##[endgroup]
+2026-03-21T02:59:14.7116067Z Downloading https://services.gradle.org/distributions/gradle-8.7-bin.zip
+2026-03-21T02:59:16.6558405Z ............10%.............20%.............30%.............40%............50%.............60%.............70%.............80%.............90%............100%
+2026-03-21T02:59:17.7473585Z 
+2026-03-21T02:59:17.7475132Z Welcome to Gradle 8.7!
+2026-03-21T02:59:17.7475541Z 
+2026-03-21T02:59:17.7476391Z Here are the highlights of this release:
+2026-03-21T02:59:17.7484388Z  - Compiling and testing with Java 22
+2026-03-21T02:59:17.7485113Z  - Cacheable Groovy script compilation
+2026-03-21T02:59:17.7485807Z  - New methods in lazy collection properties
+2026-03-21T02:59:17.7486249Z 
+2026-03-21T02:59:17.7486862Z For more details see https://docs.gradle.org/8.7/release-notes.html
+2026-03-21T02:59:17.7487361Z 
+2026-03-21T02:59:17.8471315Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.7/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2026-03-21T02:59:18.8471556Z Daemon will be stopped at the end of the build 
+2026-03-21T03:00:09.5482369Z > Task :app:preBuild UP-TO-DATE
+2026-03-21T03:00:09.5484037Z > Task :app:preDebugBuild UP-TO-DATE
+2026-03-21T03:00:09.5484965Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+2026-03-21T03:00:09.5485786Z > Task :app:checkKotlinGradlePluginConfigurationErrors
+2026-03-21T03:00:16.4469264Z > Task :app:generateDebugResValues
+2026-03-21T03:00:16.4470432Z > Task :app:dataBindingMergeDependencyArtifactsDebug
+2026-03-21T03:00:16.4483664Z > Task :app:generateDebugResources
+2026-03-21T03:00:18.2464184Z > Task :app:packageDebugResources
+2026-03-21T03:00:19.2467943Z > Task :app:parseDebugLocalResources
+2026-03-21T03:00:19.2469049Z > Task :app:mapDebugSourceSetPaths
+2026-03-21T03:00:19.3472817Z > Task :app:createDebugCompatibleScreenManifests
+2026-03-21T03:00:19.3477825Z > Task :app:checkDebugAarMetadata
+2026-03-21T03:00:19.3482749Z > Task :app:extractDeepLinksDebug
+2026-03-21T03:00:19.4472183Z > Task :app:mergeDebugResources
+2026-03-21T03:00:19.7472994Z > Task :app:processDebugMainManifest
+2026-03-21T03:00:20.1468401Z > Task :app:dataBindingGenBaseClassesDebug
+2026-03-21T03:00:20.2463485Z > Task :app:processDebugManifest
+2026-03-21T03:00:20.2464638Z > Task :app:processDebugManifestForPackage
+2026-03-21T03:00:20.2465372Z > Task :app:javaPreCompileDebug
+2026-03-21T03:00:21.2465206Z > Task :app:mergeDebugShaders
+2026-03-21T03:00:21.2465884Z > Task :app:compileDebugShaders NO-SOURCE
+2026-03-21T03:00:21.2466494Z > Task :app:generateDebugAssets UP-TO-DATE
+2026-03-21T03:00:21.3499772Z > Task :app:mergeDebugAssets
+2026-03-21T03:00:21.3500749Z > Task :app:compressDebugAssets
+2026-03-21T03:00:21.3501327Z > Task :app:desugarDebugFileDependencies
+2026-03-21T03:00:22.9463995Z > Task :app:processDebugResources
+2026-03-21T03:00:23.5466584Z > Task :app:checkDebugDuplicateClasses
+2026-03-21T03:00:53.5512032Z > Task :app:compileDebugKotlin
+2026-03-21T03:00:57.2464059Z > Task :app:mergeExtDexDebug
+2026-03-21T03:01:19.2463764Z > Task :app:mergeDebugJniLibFolders
+2026-03-21T03:01:19.2474180Z > Task :app:mergeLibDexDebug
+2026-03-21T03:01:19.6504852Z > Task :app:mergeDebugNativeLibs NO-SOURCE
+2026-03-21T03:01:19.6510913Z > Task :app:stripDebugDebugSymbols NO-SOURCE
+2026-03-21T03:01:21.4463974Z > Task :app:validateSigningDebug
+2026-03-21T03:01:21.4464639Z > Task :app:writeDebugAppMetadata
+2026-03-21T03:01:21.4466122Z > Task :app:writeDebugSigningConfigVersions
+2026-03-21T03:01:28.4468542Z 
+2026-03-21T03:01:28.4473905Z > Task :app:compileDebugKotlin FAILED
+2026-03-21T03:01:28.4483490Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/BotBrain.kt:182:16 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+2026-03-21T03:01:28.4486103Z public val CoroutineContext.isActive: Boolean defined in kotlinx.coroutines
+2026-03-21T03:01:28.4493907Z public val CoroutineScope.isActive: Boolean defined in kotlinx.coroutines
+2026-03-21T03:01:28.4496336Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/BotService.kt:594:59 None of the following functions can be called with the arguments supplied: 
+2026-03-21T03:01:28.4499030Z private fun Double.fmt(d: Int = ...): String defined in com.lifecyclebot.engine in file DataOrchestrator.kt
+2026-03-21T03:01:28.4500760Z private fun Double.fmt(d: Int = ...): String defined in com.lifecyclebot.engine in file SecurityGuard.kt
+2026-03-21T03:01:28.4502558Z private fun Double.fmt(d: Int = ...): String defined in com.lifecyclebot.engine in file SmartSizer.kt
+2026-03-21T03:01:28.4503991Z private fun Double.fmt(d: Int): String defined in com.lifecyclebot.engine in file SlippageGuard.kt
+2026-03-21T03:01:28.4515853Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/LifecycleStrategy.kt:1280:13 Val cannot be reassigned
+2026-03-21T03:01:28.4518756Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/LifecycleStrategy.kt:1703:34 Unresolved reference: high
+2026-03-21T03:01:28.4521860Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/LifecycleStrategy.kt:1703:44 Unresolved reference: low
+2026-03-21T03:01:28.4524783Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/LifecycleStrategy.kt:1704:32 Unresolved reference: high
+2026-03-21T03:01:28.4528218Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/LifecycleStrategy.kt:1704:48 Unresolved reference: open
+2026-03-21T03:01:28.4531522Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/LifecycleStrategy.kt:1704:57 Unresolved reference: close
+2026-03-21T03:01:28.4534386Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/StartupReconciler.kt:222:57 Unresolved reference: toMediaType
+2026-03-21T03:01:28.4537341Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/StartupReconciler.kt:223:80 Unresolved reference: toRequestBody
+2026-03-21T03:01:28.4540033Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/TradeDatabase.kt:201:26 Unresolved reference: db
+2026-03-21T03:01:28.4542942Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/TradeDatabase.kt:202:21 Unresolved reference: it
+2026-03-21T03:01:28.4545635Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/TradeDatabase.kt:202:39 Unresolved reference: it
+2026-03-21T03:01:28.4548309Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/engine/TradeDatabase.kt:205:17 Unresolved reference: db
+2026-03-21T03:01:28.4551907Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/network/TelegramScraper.kt:240:67 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+2026-03-21T03:01:28.4554731Z public final fun String.toMediaType(): MediaType defined in okhttp3.MediaType.Companion
+2026-03-21T03:01:28.4557540Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/network/TelegramScraper.kt:242:35 Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: 
+2026-03-21T03:01:28.4560822Z public final fun ByteArray.toRequestBody(contentType: MediaType? = ..., offset: Int = ..., byteCount: Int = ...): RequestBody defined in okhttp3.RequestBody.Companion
+2026-03-21T03:01:28.4562903Z public final fun String.toRequestBody(contentType: MediaType? = ...): RequestBody defined in okhttp3.RequestBody.Companion
+2026-03-21T03:01:28.4564757Z public final fun ByteString.toRequestBody(contentType: MediaType? = ...): RequestBody defined in okhttp3.RequestBody.Companion
+2026-03-21T03:01:28.4567513Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/ui/BacktestActivity.kt:156:24 No value passed for parameter 'cfg'
+2026-03-21T03:01:28.4570759Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/ui/BacktestActivity.kt:156:44 Type mismatch: inferred type is BotConfig but BotBrain? was expected
+2026-03-21T03:01:28.4573885Z e: file:///home/runner/work/lifecycle-bot/lifecycle-bot/lifecycle_apk/app/src/main/kotlin/com/lifecyclebot/ui/BotViewModel.kt:153:37 Cannot access 'executor': it is private in 'BotService'
+2026-03-21T03:01:28.5463517Z 
+2026-03-21T03:01:28.5485898Z FAILURE: Build failed with an exception.
+2026-03-21T03:01:28.5514231Z 
+2026-03-21T03:01:28.5514602Z 29 actionable tasks: 29 executed
+2026-03-21T03:01:28.5515229Z * What went wrong:
+2026-03-21T03:01:28.5515788Z Execution failed for task ':app:compileDebugKotlin'.
+2026-03-21T03:01:28.5517536Z > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+2026-03-21T03:01:28.5518785Z    > Compilation error. See log for more details
+2026-03-21T03:01:28.5519179Z 
+2026-03-21T03:01:28.5519356Z * Try:
+2026-03-21T03:01:28.5519842Z > Run with --stacktrace option to get the stack trace.
+2026-03-21T03:01:28.5520852Z > Run with --info or --debug option to get more log output.
+2026-03-21T03:01:28.5521520Z > Run with --scan to get full insights.
+2026-03-21T03:01:28.5522086Z > Get more help at https://help.gradle.org.
+2026-03-21T03:01:28.5522450Z 
+2026-03-21T03:01:28.5522695Z BUILD FAILED in 2m 13s
+2026-03-21T03:01:29.0316045Z ##[error]Process completed with exit code 1.
