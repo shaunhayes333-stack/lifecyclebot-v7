@@ -86,11 +86,20 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 | `minLiquidityUsd` | 8000 | Min liquidity filter |
 | `soundEnabled` | true | Play audio feedback on trades |
 
+## WebSocket Real-Time Updates (Backend + Frontend)
+- ✅ Backend `/ws/{token}` endpoint working
+- ✅ Frontend WebSocket connection logic implemented
+- ✅ Graceful fallback to polling every 30s when WS unavailable
+- ✅ Connection status indicator in header ("Live" / "Polling")
+- Session validation fixed to not require `expires_at` field
+- `get_dashboard_data()` falls back to global data if user-specific not found
+
 ## Custom Sound Files (res/raw/)
-| File | Event | Fallback |
-|------|-------|----------|
-| `woohoo.mp3` | BUY executed | ToneGenerator ACK |
-| `awesome.mp3` | Token BLOCKED | ToneGenerator NACK |
+| File | Event | Status |
+|------|-------|--------|
+| `woohoo.mp3` | BUY executed | ✅ Placeholder created (replace with real audio) |
+| `awesome.mp3` | Token BLOCKED | ✅ Placeholder created (replace with real audio) |
+| `README.md` | Instructions | ✅ Created |
 
 ## Self-Learning System
 

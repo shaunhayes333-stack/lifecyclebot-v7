@@ -35,15 +35,20 @@ export default function DashboardPage() {
 
     const connectWebSocket = () => {
       // Convert HTTP URL to WebSocket URL
-      const wsUrl = API.replace('https://', 'wss://').replace('http://', 'ws://').replace('/api', '') + `/ws/${token}`;
+      // API is like https://domain.com/api, we need wss://domain.com/ws/token
+      const baseUrl = API.replace('/api', '');
+      const wsUrl = baseUrl.replace('https://', 'wss://').replace('http://', 'ws://') + `/ws/${token}`;
+      
+      console.log('Attempting WebSocket connection to:', wsUrl);
       
       try {
         const ws = new WebSocket(wsUrl);
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log('WebSocket connected');
+          console.log('WebSocket connected successfully');
           setWsConnected(true);
+          toast.success('Real-time connection established');
         };
 
         ws.onmessage = (event) => {

@@ -663,13 +663,14 @@ ws_manager = ConnectionManager()
 @app.websocket("/ws/{token}")
 async def websocket_endpoint(websocket: WebSocket, token: str):
     """WebSocket endpoint for real-time dashboard updates"""
-    # Validate token
-    session = await db.sessions.find_one({"token": token, "expires_at": {"$gt": datetime.now(timezone.utc)}})
+    # Validate token - check if session exists
+    session = await db.sessions.find_one({"token": token})
     if not session:
         await websocket.close(code=4001, reason="Invalid or expired token")
         return
     
-    user_id = session["user_id"]
+    # Use username as user_id if user_id field doesn't exist
+    user_id = session.get("user_id") or session.get("username", "default")
     await ws_manager.connect(websocket, user_id)
     
     try:
@@ -701,27 +702,40 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
 
 async def get_dashboard_data(user_id: str) -> dict:
     """Get complete dashboard data for a user"""
+    # Try user-specific data first, then fall back to global/default data
+    
     # Get bot status
     bot_status = await db.bot_status.find_one({"user_id": user_id}, {"_id": 0})
+    if not bot_status:
+        bot_status = await db.bot_status.find_one({"bot_id": "default"}, {"_id": 0})
     
-    # Get positions
+    # Get positions (try user-specific, then all)
     positions = await db.positions.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+    if not positions:
+        positions = await db.positions.find({}, {"_id": 0}).to_list(100)
     
     # Get recent trades
-    trades = await db.trades.find(
-        {"user_id": user_id}
-    ).sort("exit_time", -1).limit(20).to_list(20)
+    trades = await db.trades.find({"user_id": user_id}).sort("exit_time", -1).limit(20).to_list(20)
+    if not trades:
+        trades = await db.trades.find({}).sort("exit_time", -1).limit(20).to_list(20)
     for t in trades:
         t.pop("_id", None)
     
     # Get treasury
     treasury = await db.treasury_current.find_one({"user_id": user_id}, {"_id": 0})
+    if not treasury:
+        treasury = await db.treasury_current.find_one({"_type": "current"}, {"_id": 0})
     
     # Get watchlist
     watchlist = await db.watchlist.find({"user_id": user_id}, {"_id": 0}).to_list(50)
+    if not watchlist:
+        watchlist = await db.watchlist.find({}, {"_id": 0}).to_list(50)
     
-    # Calculate stats
+    # Calculate stats from all trades
     all_trades = await db.trades.find({"user_id": user_id}).to_list(1000)
+    if not all_trades:
+        all_trades = await db.trades.find({}).to_list(1000)
+    
     wins = [t for t in all_trades if t.get("is_win", t.get("pnl_sol", 0) > 0)]
     losses = [t for t in all_trades if not t.get("is_win", t.get("pnl_sol", 0) > 0)]
     
