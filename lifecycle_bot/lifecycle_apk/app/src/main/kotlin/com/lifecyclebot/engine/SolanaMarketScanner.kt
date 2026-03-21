@@ -108,13 +108,16 @@ class SolanaMarketScanner(
     // ── Main scan loop ────────────────────────────────────────────────
 
     private suspend fun scanLoop() {
+        var cycleNum = 0
         while (isActive) {
+            cycleNum++
             val c = cfg()
             val scanIntervalMs = (c.scanIntervalSecs * 1000L).toLong()
 
             try {
                 // Clean expired seen entries
                 val now = System.currentTimeMillis()
+                val expiredCount = seenMints.entries.count { now - it.value > SEEN_TTL }
                 seenMints.entries.removeIf { now - it.value > SEEN_TTL }
 
                 // ScalingMode tier logging
@@ -122,7 +125,8 @@ class SolanaMarketScanner(
                     TreasuryManager.treasurySol * WalletManager.lastKnownSolPrice)
                 val _tn = if (sScanTier != ScalingMode.Tier.MICRO)
                     " ${sScanTier.icon}${sScanTier.label}" else ""
-                onLog("🌐 Scan cycle${_tn}", "")
+                val tokensBefore = seenMints.size
+                onLog("🌐 Scan cycle #$cycleNum${_tn} | tracked=${tokensBefore} | minLiq=$${c.minLiquidityUsd.toInt()} minScore=${c.minDiscoveryScore.toInt()}", "")
 
                 // Run all enabled sources in parallel
                 val jobs = listOf(
@@ -136,6 +140,12 @@ class SolanaMarketScanner(
                     async { if (c.narrativeScanEnabled) scanNarratives(c.narrativeKeywords) },
                 )
                 jobs.forEach { it.await() }
+
+                val tokensAfter = seenMints.size
+                val newTokens = tokensAfter - tokensBefore
+                if (newTokens > 0) {
+                    onLog("📊 Scan cycle #$cycleNum complete: +$newTokens new tokens found")
+                }
 
             } catch (e: Exception) {
                 onLog("Scanner error: ${e.message?.take(80)}")
@@ -446,30 +456,63 @@ class SolanaMarketScanner(
         val c = cfg()
 
         // Minimum liquidity
-        if (token.liquidityUsd < c.minLiquidityUsd && token.liquidityUsd > 0) return false
+        if (token.liquidityUsd < c.minLiquidityUsd && token.liquidityUsd > 0) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — liq $${token.liquidityUsd.toInt()} < min $${c.minLiquidityUsd.toInt()}")
+            return false
+        }
 
         // DEX filter — user can restrict to specific DEXs
-        if (c.allowedDexes.isNotEmpty() && token.dexId !in c.allowedDexes) return false
+        if (c.allowedDexes.isNotEmpty() && token.dexId !in c.allowedDexes) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — dex ${token.dexId} not in allowed list")
+            return false
+        }
 
         // MC range filter
-        if (c.scanMinMcapUsd > 0 && token.mcapUsd < c.scanMinMcapUsd) return false
-        if (c.scanMaxMcapUsd > 0 && token.mcapUsd > c.scanMaxMcapUsd) return false
+        if (c.scanMinMcapUsd > 0 && token.mcapUsd < c.scanMinMcapUsd) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — mcap $${token.mcapUsd.toInt()} < min $${c.scanMinMcapUsd.toInt()}")
+            return false
+        }
+        if (c.scanMaxMcapUsd > 0 && token.mcapUsd > c.scanMaxMcapUsd) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — mcap $${token.mcapUsd.toInt()} > max $${c.scanMaxMcapUsd.toInt()}")
+            return false
+        }
 
         // Source filter — user can disable specific sources
-        if (token.source == TokenSource.PUMP_FUN_NEW && !c.scanPumpFunNew) return false
-        if (token.source == TokenSource.PUMP_FUN_GRADUATE && !c.scanPumpGraduates) return false
-        if (token.source == TokenSource.DEX_TRENDING && !c.scanDexTrending) return false
-        if (token.source == TokenSource.RAYDIUM_NEW_POOL && !c.scanRaydiumNew) return false
+        if (token.source == TokenSource.PUMP_FUN_NEW && !c.scanPumpFunNew) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — PUMP_FUN_NEW source disabled")
+            return false
+        }
+        if (token.source == TokenSource.PUMP_FUN_GRADUATE && !c.scanPumpGraduates) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — PUMP_FUN_GRADUATE source disabled")
+            return false
+        }
+        if (token.source == TokenSource.DEX_TRENDING && !c.scanDexTrending) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — DEX_TRENDING source disabled")
+            return false
+        }
+        if (token.source == TokenSource.RAYDIUM_NEW_POOL && !c.scanRaydiumNew) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — RAYDIUM_NEW_POOL source disabled")
+            return false
+        }
 
         // Minimum discovery score
-        if (token.score < c.minDiscoveryScore) return false
+        if (token.score < c.minDiscoveryScore) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — score ${token.score.toInt()} < min ${c.minDiscoveryScore.toInt()}")
+            return false
+        }
 
         // Name/symbol scam heuristics
         val sym = token.symbol.lowercase()
         val name = token.name.lowercase()
         val scamPatterns = listOf("test","fake","scam","rug","honeypot","xxx","porn")
-        if (scamPatterns.any { sym.contains(it) || name.contains(it) }) return false
+        if (scamPatterns.any { sym.contains(it) || name.contains(it) }) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — scam pattern detected in name/symbol")
+            return false
+        }
 
+        // Token passed all filters!
+        onLog("✅ FILTER PASS: ${token.symbol} (${token.source.name}) " +
+              "liq=$${(token.liquidityUsd/1000).toInt()}K score=${token.score.toInt()}")
         return true
     }
 

@@ -133,10 +133,27 @@ Build a sophisticated Solana trading bot Android application that autonomously s
 9. Dashboard updates in real-time via WebSocket
 
 ## Known Issues / In Progress
-1. **Bot stops when minimized** - START_STICKY added, battery optimization check needed
-2. **Scanner token yield** - May need additional data sources or filter tuning
+1. **Bot stops when minimized** - ✅ FIXED: Added battery optimization check + enhanced service lifecycle logging
+2. **Scanner token yield** - ✅ FIXED: Added detailed filter rejection logging to diagnose issues
 
 ## Files Modified (Dec 2025)
 - `SoundManager.kt` - Added MediaPlayer support for custom sounds
 - `Executor.kt` - Added `playBuySound()` calls on BUY events
 - `BotConfig.kt` - Changed `autoTrade` and `autoAddNewTokens` defaults to `true`
+- `BotService.kt` - Added battery optimization check, enhanced lifecycle logging
+- `SolanaMarketScanner.kt` - Added detailed filter rejection logging with reasons
+- `MainActivity.kt` - Battery optimization dialog (already existed)
+
+## Background Execution Improvements
+- **Battery Optimization Check**: Bot logs warning if battery optimization is enabled
+- **START_STICKY**: Service restarts automatically if killed by system
+- **onTaskRemoved**: Schedules restart via AlarmManager when app swiped from recents
+- **Lifecycle Logging**: Full visibility into onStartCommand, onDestroy, onTaskRemoved events
+
+## Scanner Debugging
+Filter rejection logs now show exact reason:
+- `❌ FILTER REJECT: TOKEN — liq $X < min $Y`
+- `❌ FILTER REJECT: TOKEN — score X < min Y`
+- `❌ FILTER REJECT: TOKEN — mcap $X < min $Y`
+- `❌ FILTER REJECT: TOKEN — scam pattern detected`
+- `✅ FILTER PASS: TOKEN (SOURCE) liq=$XK score=Y`

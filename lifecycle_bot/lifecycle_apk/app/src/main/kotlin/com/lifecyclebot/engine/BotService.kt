@@ -118,9 +118,19 @@ class BotService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
+        val action = intent?.action
+        addLog("🔔 onStartCommand: action=$action, flags=$flags, startId=$startId")
+        
+        when (action) {
             ACTION_START -> startBot()
             ACTION_STOP  -> stopBot()
+            null -> {
+                // Service restarted by system (START_STICKY)
+                if (!status.running) {
+                    addLog("🔄 Service restarted by system (START_STICKY) — resuming bot")
+                    startBot()
+                }
+            }
         }
         return START_STICKY
     }
@@ -129,6 +139,7 @@ class BotService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        addLog("⚠️ BotService.onDestroy() called — service is being destroyed")
         scope.cancel()
     }
 
@@ -139,7 +150,9 @@ class BotService : Service() {
      */
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
+        addLog("⚠️ onTaskRemoved() — app swiped from recents")
         if (status.running) {
+            addLog("🔄 Scheduling service restart in 2 seconds...")
             // Re-schedule start in 2 seconds
             val restartIntent = Intent(applicationContext, BotService::class.java).apply {
                 action = ACTION_START
@@ -155,6 +168,7 @@ class BotService : Service() {
                 System.currentTimeMillis() + 2_000,
                 pi
             )
+            addLog("✓ Restart scheduled via AlarmManager")
         }
     }
 
@@ -168,6 +182,16 @@ class BotService : Service() {
             status.running = true
             startForeground(NOTIF_ID, buildRunningNotif())
             addLog("✓ Foreground service started")
+
+            // Check and log battery optimization status
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            val isIgnoringBatteryOpt = pm.isIgnoringBatteryOptimizations(packageName)
+            if (isIgnoringBatteryOpt) {
+                addLog("✓ Battery optimization: DISABLED (good for background)")
+            } else {
+                addLog("⚠️ Battery optimization: ENABLED — bot may stop in background!")
+                addLog("⚠️ Please disable battery optimization in Android settings")
+            }
 
             // Register network callback to reconnect WebSocket after connectivity loss
             try {
