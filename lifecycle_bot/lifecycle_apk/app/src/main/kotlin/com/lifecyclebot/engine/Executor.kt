@@ -789,32 +789,35 @@ class Executor(
         if (pnl > 0) sounds?.playMilestone(pnlP)
         SmartSizer.recordTrade(pnl > 0)
 
-        // Record bad behaviour observations for every losing trade
-        // This feeds the bad_behaviour table in TradeDatabase for pattern analysis
-        if (pnl <= 0) {
-            val fanName = ts.meta.emafanAlignment
-            val ph      = ts.position.entryPhase
-            val src     = ts.source.ifBlank { "UNKNOWN" }
+        // Record bad behaviour observations only in live mode.
+        // Paper trades must not pollute the bad_behaviour table — suppressions
+        // trained on simulated losses would block real entries once live.
+        if (!cfg().paperMode) {
+            if (pnl <= 0) {
+                val fanName = ts.meta.emafanAlignment
+                val ph      = ts.position.entryPhase
+                val src     = ts.source.ifBlank { "UNKNOWN" }
 
-            // Record the phase+ema combo as a bad observation
-            tradeDb?.recordBadObservation(
-                featureKey    = "phase=${ph}+ema=${fanName}",
-                behaviourType = "ENTRY_SIGNAL",
-                description   = "Loss on $ph + $fanName — pnl=${pnlP.toInt()}%",
-                lossPct       = pnlP,
-            )
-            // Record source if it contributed
-            if (src != "UNKNOWN") tradeDb?.recordBadObservation(
-                featureKey    = "source=${src}",
-                behaviourType = "SOURCE",
-                description   = "Loss from source $src",
-                lossPct       = pnlP,
-            )
-        } else {
-            // Win — let the brain know this pattern is recovering
-            val fanName = ts.meta.emafanAlignment
-            val ph      = ts.position.entryPhase
-            tradeDb?.recordGoodObservation("phase=${ph}+ema=${fanName}")
+                // Record the phase+ema combo as a bad observation
+                tradeDb?.recordBadObservation(
+                    featureKey    = "phase=${ph}+ema=${fanName}",
+                    behaviourType = "ENTRY_SIGNAL",
+                    description   = "Loss on $ph + $fanName — pnl=${pnlP.toInt()}%",
+                    lossPct       = pnlP,
+                )
+                // Record source if it contributed
+                if (src != "UNKNOWN") tradeDb?.recordBadObservation(
+                    featureKey    = "source=${src}",
+                    behaviourType = "SOURCE",
+                    description   = "Loss from source $src",
+                    lossPct       = pnlP,
+                )
+            } else {
+                // Win — let the brain know this pattern is recovering
+                val fanName = ts.meta.emafanAlignment
+                val ph      = ts.position.entryPhase
+                tradeDb?.recordGoodObservation("phase=${ph}+ema=${fanName}")
+            }
         }
 
         tradeDb?.insertTrade(TradeRecord(
