@@ -603,6 +603,13 @@ class SolanaMarketScanner(
             return false
         }
 
+        // Minimum hourly volume — tokens with zero/near-zero volume are ghost tokens or rug traps
+        val minVolume = 500.0   // $500 minimum H1 volume — weeds out dead/rug tokens
+        if (token.volumeH1 in 1.0..minVolume) {
+            onLog("❌ FILTER REJECT: ${token.symbol} — vol $${token.volumeH1.toInt()} < $${minVolume.toInt()}/h")
+            return false
+        }
+
         // Minimum discovery score
         if (token.score < c.minDiscoveryScore) {
             onLog("❌ FILTER REJECT: ${token.symbol} — score ${token.score.toInt()} < min ${c.minDiscoveryScore.toInt()}")

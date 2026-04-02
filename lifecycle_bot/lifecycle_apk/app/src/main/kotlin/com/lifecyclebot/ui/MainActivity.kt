@@ -776,6 +776,16 @@ class MainActivity : AppCompatActivity() {
                 typeface = android.graphics.Typeface.MONOSPACE
                 gravity = android.view.Gravity.END
             })
+            val tpTarget = pos.targetTakeProfitPct
+            if (tpTarget > 0) {
+                right.addView(TextView(this).apply {
+                    text = "TP +${tpTarget.toInt()}%"
+                    textSize = 9f
+                    setTextColor(if (gainPct >= tpTarget) green else 0xFF6B7280.toInt())
+                    typeface = android.graphics.Typeface.MONOSPACE
+                    gravity = android.view.Gravity.END
+                })
+            }
             row.addView(right)
 
             val div = View(this).apply {

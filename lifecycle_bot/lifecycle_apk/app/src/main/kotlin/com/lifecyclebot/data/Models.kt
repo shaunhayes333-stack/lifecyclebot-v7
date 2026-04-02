@@ -57,6 +57,8 @@ data class Position(
     val lastTopUpPrice: Double = 0.0,
     val partialSoldPct: Double = 0.0,
     val isLongHold: Boolean = false,   // promoted to conviction long-hold mode
+    // AI-computed take-profit target set at entry based on volatility — 0 = unset
+    var targetTakeProfitPct: Double = 0.0,
 ) {
     val isOpen get() = qtyToken > 0.0
     val initialCostSol get() = costSol - topUpCostSol  // original entry size

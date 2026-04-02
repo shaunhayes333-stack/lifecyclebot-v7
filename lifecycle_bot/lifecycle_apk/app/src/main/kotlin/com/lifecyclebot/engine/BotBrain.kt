@@ -258,25 +258,27 @@ class BotBrain(
         }
 
         // ── Record bad observations for confirmed losing patterns ────────
-        // Every time we identify a losing phase/signal combo, we record it
-        // to the bad_behaviour table so it accumulates evidence over time.
-        phaseGroups.forEach { (phase, phaseTrades) ->
-            if (phaseTrades.size < 4) return@forEach
-            val wr = phaseTrades.count { it.isWin }.toDouble() / phaseTrades.size * 100
-            if (wr <= 45.0) {
-                phaseTrades.filter { !it.isWin }.forEach { t ->
-                    val key = "phase=${phase}+ema=${t.emaFan}"
-                    db.recordBadObservation(
-                        featureKey    = key,
-                        behaviourType = "ENTRY_SIGNAL",
-                        description   = "Entering $phase with ${t.emaFan} EMA — consistently losing",
-                        lossPct       = t.pnlPct,
-                    )
+        // Only in live mode — paper observations must not build up suppressions
+        // that would block real entries once the bot switches to live.
+        if (!cfg().paperMode) {
+            phaseGroups.forEach { (phase, phaseTrades) ->
+                if (phaseTrades.size < 4) return@forEach
+                val wr = phaseTrades.count { it.isWin }.toDouble() / phaseTrades.size * 100
+                if (wr <= 45.0) {
+                    phaseTrades.filter { !it.isWin }.forEach { t ->
+                        val key = "phase=${phase}+ema=${t.emaFan}"
+                        db.recordBadObservation(
+                            featureKey    = key,
+                            behaviourType = "ENTRY_SIGNAL",
+                            description   = "Entering $phase with ${t.emaFan} EMA — consistently losing",
+                            lossPct       = t.pnlPct,
+                        )
+                    }
                 }
-            }
-            // Also record wins to allow recovery
-            if (wr >= 60.0) phaseTrades.filter { it.isWin }.forEach { t ->
-                db.recordGoodObservation("phase=${phase}+ema=${t.emaFan}")
+                // Also record wins to allow recovery
+                if (wr >= 60.0) phaseTrades.filter { it.isWin }.forEach { t ->
+                    db.recordGoodObservation("phase=${phase}+ema=${t.emaFan}")
+                }
             }
         }
 
@@ -333,18 +335,20 @@ class BotBrain(
             }
         }
 
-        // Record bad sources
-        sourceGroups.forEach { (source, srcTrades) ->
-            if (srcTrades.size < 5) return@forEach
-            val wr = srcTrades.count { it.isWin }.toDouble() / srcTrades.size * 100
-            if (wr <= 40.0) {
-                srcTrades.filter { !it.isWin }.forEach { t ->
-                    db.recordBadObservation(
-                        featureKey    = "source=${source}",
-                        behaviourType = "SOURCE",
-                        description   = "Source $source has ${wr.toInt()}% win rate — poor signal quality",
-                        lossPct       = t.pnlPct,
-                    )
+        // Record bad sources — live mode only
+        if (!cfg().paperMode) {
+            sourceGroups.forEach { (source, srcTrades) ->
+                if (srcTrades.size < 5) return@forEach
+                val wr = srcTrades.count { it.isWin }.toDouble() / srcTrades.size * 100
+                if (wr <= 40.0) {
+                    srcTrades.filter { !it.isWin }.forEach { t ->
+                        db.recordBadObservation(
+                            featureKey    = "source=${source}",
+                            behaviourType = "SOURCE",
+                            description   = "Source $source has ${wr.toInt()}% win rate — poor signal quality",
+                            lossPct       = t.pnlPct,
+                        )
+                    }
                 }
             }
         }
@@ -358,8 +362,8 @@ class BotBrain(
             changes.add("exit threshold +3 (holding losers too long)")
         }
 
-        // Record bad exit timing as a behaviour pattern
-        if (avgHoldLoss > avgHoldWins * 1.5 && avgHoldLoss > 10) {
+        // Record bad exit timing as a behaviour pattern — live mode only
+        if (!cfg().paperMode && avgHoldLoss > avgHoldWins * 1.5 && avgHoldLoss > 10) {
             db.recordBadObservation(
                 featureKey    = "exit_timing=hold_too_long",
                 behaviourType = "EXIT_TIMING",
