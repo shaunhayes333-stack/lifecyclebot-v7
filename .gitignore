@@ -77,7 +77,10 @@ agenthub/agents/youtube/db
 .cache/
 
 # Mobile development
-android-sdk/ -e 
+android-sdk/
+lifecycle_bot/lifecycle_apk/.gradle/
+lifecycle_bot/lifecycle_apk/app/build/
+lifecycle_bot/lifecycle_apk/build/-e 
 # Environment files
 *.env
 *.env.*
