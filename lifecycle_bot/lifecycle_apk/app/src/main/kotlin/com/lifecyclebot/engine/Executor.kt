@@ -664,6 +664,32 @@ class Executor(
         }
     }
 
+    /**
+     * Compute an adaptive take-profit % target before entry.
+     * Blends a mode-based default with recent price swing to give the bot
+     * a realistic exit target in mind at entry time.
+     */
+    private fun computeEntryTpPct(ts: TokenState): Double {
+        // Base TP by source / phase heuristic
+        val defaultTp = when {
+            ts.source.contains("PUMP",       ignoreCase = true) -> 80.0
+            ts.source.contains("RAYDIUM",    ignoreCase = true) -> 40.0
+            ts.source.contains("TRENDING",   ignoreCase = true) -> 30.0
+            ts.source.contains("BIRDEYE",    ignoreCase = true) -> 25.0
+            ts.source.contains("NARRATIVE",  ignoreCase = true) -> 50.0
+            else -> 35.0
+        }
+        // Blend with recent volatility from history
+        val prices = synchronized(ts.history) { ts.history.takeLast(20) }
+            .mapNotNull { it.priceUsd.takeIf { p -> p > 0 } }
+        if (prices.size < 3) return defaultTp
+        val lo = prices.minOrNull() ?: return defaultTp
+        val hi = prices.maxOrNull() ?: return defaultTp
+        val swingPct = if (lo > 0) ((hi - lo) / lo * 100.0) else 0.0
+        val blended  = (defaultTp * 0.55 + swingPct * 0.55 * 0.45)
+        return blended.coerceIn(10.0, 500.0)
+    }
+
     fun paperBuy(ts: TokenState, sol: Double, score: Double) {
         val price = ts.ref
         if (price <= 0) return
@@ -671,14 +697,16 @@ class Executor(
         if (ts.position.isOpen) {
             onLog("⚠ Buy skipped: position already open", ts.mint); return
         }
+        val tpPct = computeEntryTpPct(ts)
         ts.position = Position(
-            qtyToken     = sol / maxOf(price, 1e-12),
-            entryPrice   = price,
-            entryTime    = System.currentTimeMillis(),
-            costSol      = sol,
-            highestPrice = price,
-            entryPhase   = ts.phase,
-            entryScore   = score,
+            qtyToken            = sol / maxOf(price, 1e-12),
+            entryPrice          = price,
+            entryTime           = System.currentTimeMillis(),
+            costSol             = sol,
+            highestPrice        = price,
+            entryPhase          = ts.phase,
+            entryScore          = score,
+            targetTakeProfitPct = tpPct,
         )
         val trade = Trade("BUY", "paper", sol, price, System.currentTimeMillis(), score = score)
         ts.trades.add(trade)
@@ -736,14 +764,16 @@ class Executor(
                 onLog("⚠ Position opened during confirmation wait — aborting duplicate", ts.mint); return
             }
 
+            val liveTpPct = computeEntryTpPct(ts)
             ts.position = Position(
-                qtyToken     = qty,
-                entryPrice   = price,
-                entryTime    = System.currentTimeMillis(),
-                costSol      = sol,
-                highestPrice = price,
-                entryPhase   = ts.phase,
-                entryScore   = score,
+                qtyToken            = qty,
+                entryPrice          = price,
+                entryTime           = System.currentTimeMillis(),
+                costSol             = sol,
+                highestPrice        = price,
+                entryPhase          = ts.phase,
+                entryScore          = score,
+                targetTakeProfitPct = liveTpPct,
             )
             val trade = Trade("BUY", "live", sol, price, System.currentTimeMillis(),
                               score = score, sig = sig)
